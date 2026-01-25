@@ -141,6 +141,8 @@
             cursor: pointer;
             transition: var(--transition);
             box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+            text-decoration: none;
+            display: inline-block;
         }
 
         .cta-button:hover {
@@ -229,6 +231,8 @@
             border-radius: 20px;
             box-shadow: var(--shadow);
             animation: float 6s ease-in-out infinite;
+            object-fit: cover;
+            height: 400px;
         }
 
         @keyframes float {
@@ -357,6 +361,13 @@
             font-weight: 700;
             color: var(--primary);
             margin: 20px 0;
+        }
+
+        .service-price-note {
+            font-size: 0.9rem;
+            color: var(--gray);
+            font-style: italic;
+            margin-top: 5px;
         }
 
         /* How It Works */
@@ -556,6 +567,15 @@
             text-decoration: underline;
         }
 
+        .whatsapp-link {
+            color: #25D366 !important;
+            font-weight: 600;
+        }
+
+        .whatsapp-link i {
+            margin-right: 8px;
+        }
+
         /* Animations */
         .fade-in {
             opacity: 0;
@@ -665,7 +685,7 @@
                         <li><a href="#services">Services</a></li>
                         <li><a href="#how-it-works">Fonctionnement</a></li>
                         <li><a href="#contact">Contact</a></li>
-                        <li><button class="cta-button">Commander</button></li>
+                        <li><a href="inscription.html" class="cta-button">Commencer</a></li>
                     </ul>
                 </nav>
             </div>
@@ -679,10 +699,10 @@
                 <div class="hero-text fade-in">
                     <h1>Boostez votre visibilité <span>en ligne</span></h1>
                     <p>Augmentez votre présence sur les réseaux sociaux avec nos services de boost professionnels. Likes, vues, abonnés et bien plus pour 10 plateformes différentes.</p>
-                    <button class="cta-button">Découvrir nos services</button>
+                    <a href="inscription.html" class="cta-button">Commencer maintenant</a>
                 </div>
                 <div class="hero-image fade-in">
-                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Boostez votre visibilité en ligne">
+                    <img src="https://raw.githubusercontent.com/exaucenapopolo/Boosteph-/refs/heads/main/reunion-gestion-entreprise_1284-13651.jpg" alt="Équipe professionnelle de gestion de visibilité en ligne">
                 </div>
             </div>
         </div>
@@ -801,8 +821,8 @@
                         <li>✓ Livraison en 24h</li>
                         <li>✓ Support technique</li>
                     </ul>
-                    <div class="service-price">À partir de 9,99€</div>
-                    <button class="cta-button">Commander</button>
+                    <div class="service-price">À partir de 1€</div>
+                    <div class="service-price-note">Pour les services de base</div>
                 </div>
                 
                 <div class="service-card fade-in">
@@ -817,8 +837,8 @@
                         <li>✓ Livraison en 12h</li>
                         <li>✓ Support prioritaire</li>
                     </ul>
-                    <div class="service-price">À partir de 29,99€</div>
-                    <button class="cta-button">Commander</button>
+                    <div class="service-price">À partir de 0,3€</div>
+                    <div class="service-price-note">Par unité - prix dégressifs</div>
                 </div>
                 
                 <div class="service-card fade-in">
@@ -833,8 +853,8 @@
                         <li>✓ Livraison instantanée</li>
                         <li>✓ Support 24/7</li>
                     </ul>
-                    <div class="service-price">À partir de 79,99€</div>
-                    <button class="cta-button">Commander</button>
+                    <div class="service-price">À partir de 0,3€</div>
+                    <div class="service-price-note">Par unité - forfaits avantageux</div>
                 </div>
             </div>
         </div>
@@ -875,7 +895,7 @@
         <div class="container">
             <h2>Prêt à booster votre visibilité ?</h2>
             <p>Rejoignez des milliers de clients satisfaits qui ont augmenté leur présence en ligne avec Boosteph.</p>
-            <button class="cta-button white">Commencer maintenant</button>
+            <a href="inscription.html" class="cta-button white">Commencer maintenant</a>
         </div>
     </section>
 
@@ -920,8 +940,12 @@
                     <h3>Contact</h3>
                     <ul class="footer-links">
                         <li><i class="fas fa-envelope"></i> contact@boosteph.com</li>
-                        <li><i class="fas fa-phone"></i> +33 1 23 45 67 89</li>
-                        <li><i class="fas fa-map-marker-alt"></i> Paris, France</li>
+                        <li>
+                            <a href="https://wa.me/237678181602" target="_blank" class="whatsapp-link">
+                                <i class="fab fa-whatsapp"></i> +237 6 78 18 16 02
+                            </a>
+                        </li>
+                        <li><i class="fas fa-map-marker-alt"></i> Service en ligne international</li>
                     </ul>
                 </div>
             </div>
@@ -997,33 +1021,8 @@
             });
         });
         
-        // Animate counter for stats (example)
-        const animateCounter = () => {
-            const counters = document.querySelectorAll('.counter');
-            const speed = 200;
-            
-            counters.forEach(counter => {
-                const updateCount = () => {
-                    const target = +counter.getAttribute('data-target');
-                    const count = +counter.innerText;
-                    
-                    const inc = target / speed;
-                    
-                    if (count < target) {
-                        counter.innerText = Math.ceil(count + inc);
-                        setTimeout(updateCount, 1);
-                    } else {
-                        counter.innerText = target.toLocaleString();
-                    }
-                };
-                
-                updateCount();
-            });
-        };
-        
-        // Initialize animations when page loads
+        // Add animation delay to cards
         document.addEventListener('DOMContentLoaded', () => {
-            // Add animation delay to cards
             const cards = document.querySelectorAll('.platform-card, .service-card, .step');
             cards.forEach((card, index) => {
                 card.style.transitionDelay = `${index * 0.1}s`;
