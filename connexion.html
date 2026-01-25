@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Boosteph</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        :root {
+            --primary: #6c63ff;
+            --primary-dark: #554fd8;
+            --secondary: #ff6584;
+            --dark: #1a1a2e;
+            --dark-light: #2a2a3e;
+            --light: #f8f9fa;
+            --gray: #8a8a9e;
+            --success: #36d399;
+            --error: #ff4757;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f9f9ff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7ff 0%, #eef1ff 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body:before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(108, 99, 255, 0.1) 0%, rgba(108, 99, 255, 0) 70%);
+            top: -300px;
+            right: -200px;
+            z-index: 0;
+        }
+
+        body:after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 101, 132, 0.1) 0%, rgba(255, 101, 132, 0) 70%);
+            bottom: -200px;
+            left: -100px;
+            z-index: 0;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-container {
+            display: flex;
+            width: 100%;
+            max-width: 1000px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            min-height: 600px;
+        }
+
+        .auth-left {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .auth-right {
+            flex: 1;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo span {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 28px;
+        }
+
+        .auth-left h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+        }
+
+        .auth-left p {
+            opacity: 0.9;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .testimonial {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            border-left: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .testimonial p {
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+
+        .testimonial-author img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-color: white;
+            padding: 5px;
+        }
+
+        .auth-right h2 {
+            font-size: 2rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .auth-subtitle {
+            color: var(--gray);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+        }
+
+        .form-check-input {
+            margin-right: 8px;
+        }
+
+        .form-check-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .forgot-password {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .cta-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+            width: 100%;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .cta-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(108, 99, 255, 0.4);
+        }
+
+        .cta-button:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .auth-links {
+            text-align: center;
+            margin-top: 25px;
+            color: var(--gray);
+        }
+
+        .auth-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: rgba(54, 211, 153, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(54, 211, 153, 0.3);
+        }
+
+        .alert-error {
+            background-color: rgba(255, 71, 87, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .spinner {
+            border: 3px solid rgba(108, 99, 255, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid var(--primary);
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-home {
+            display: inline-flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            margin-top: 30px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .back-home:hover {
+            transform: translateX(-5px);
+        }
+
+        .back-home i {
+            margin-right: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .auth-container {
+                flex-direction: column;
+                max-width: 500px;
+            }
+            
+            .auth-left, .auth-right {
+                padding: 40px 30px;
+            }
+            
+            .auth-left {
+                order: 2;
+            }
+            
+            .auth-right {
+                order: 1;
+            }
+            
+            body:before, body:after {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-left, .auth-right {
+                padding: 30px 20px;
+            }
+            
+            .auth-left h2, .auth-right h2 {
+                font-size: 1.8rem;
+            }
+            
+            .form-options {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .forgot-password {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-left">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-rocket"></i>boosteph<span>.</span>
+                </a>
+                <h2>Bienvenue sur Boosteph</h2>
+                <p>Connectez-vous à votre compte pour gérer vos services de boost et accéder à votre tableau de bord.</p>
+                
+                <div class="testimonial">
+                    <p>"Boosteph m'a permis d'augmenter ma visibilité sur Instagram de 300% en seulement un mois. Service exceptionnel !"</p>
+                    <div class="testimonial-author">
+                        <i class="fas fa-user-circle" style="font-size: 40px; margin-right: 10px;"></i>
+                        <div>
+                            <strong>Marie Dubois</strong>
+                            <div style="font-size: 0.9rem; opacity: 0.8;">Influenceuse mode</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="index.html" class="back-home">
+                    <i class="fas fa-arrow-left"></i> Retour à l'accueil
+                </a>
+            </div>
+            
+            <div class="auth-right">
+                <h2>Se connecter</h2>
+                <p class="auth-subtitle">Entrez vos identifiants pour accéder à votre compte</p>
+                
+                <div id="successAlert" class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> Connexion réussie ! Redirection...
+                </div>
+                
+                <div id="errorAlert" class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i> <span id="errorMessage"></span>
+                </div>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label" for="email">Adresse email</label>
+                        <input type="email" id="email" class="form-input" placeholder="votre@email.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="password">Mot de passe</label>
+                        <div class="password-container">
+                            <input type="password" id="password" class="form-input" placeholder="Votre mot de passe" required>
+                            <button type="button" class="toggle-password" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-options">
+                        <div class="form-check">
+                            <input type="checkbox" id="rememberMe" class="form-check-input">
+                            <label for="rememberMe" class="form-check-label">Se souvenir de moi</label>
+                        </div>
+                        <a href="#" class="forgot-password" id="forgotPassword">Mot de passe oublié ?</a>
+                    </div>
+                    
+                    <div class="loader" id="loader">
+                        <div class="spinner"></div>
+                    </div>
+                    
+                    <button type="submit" class="cta-button" id="submitButton">Se connecter</button>
+                    
+                    <div class="auth-links">
+                        Vous n'avez pas de compte ? <a href="inscription.html">Inscrivez-vous ici</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyADHHilol6wT52bjGihwj5qx2O1awQdfTk",
+            authDomain: "yokason-4582d.firebaseapp.com",
+            projectId: "yokason-4582d",
+            storageBucket: "yokason-4582d.firebasestorage.app",
+            messagingSenderId: "953463074169",
+            appId: "1:953463074169:web:8840544c6fa73559e353a8"
+        };
+
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Éléments du DOM
+        const loginForm = document.getElementById('loginForm');
+        const successAlert = document.getElementById('successAlert');
+        const errorAlert = document.getElementById('errorAlert');
+        const errorMessage = document.getElementById('errorMessage');
+        const loader = document.getElementById('loader');
+        const submitButton = document.getElementById('submitButton');
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const forgotPasswordLink = document.getElementById('forgotPassword');
+
+        // Basculer la visibilité du mot de passe
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+
+        // Gérer la connexion
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Récupérer les valeurs du formulaire
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            // Masquer les alertes précédentes
+            successAlert.style.display = 'none';
+            errorAlert.style.display = 'none';
+            
+            // Validation
+            if (!email || !password) {
+                showError('Veuillez remplir tous les champs.');
+                return;
+            }
+            
+            // Afficher le loader et désactiver le bouton
+            loader.style.display = 'block';
+            submitButton.disabled = true;
+            
+            try {
+                // Configurer la persistance de session
+                const persistence = rememberMe ? 
+                    firebase.auth.Auth.Persistence.LOCAL : 
+                    firebase.auth.Auth.Persistence.SESSION;
+                
+                await auth.setPersistence(persistence);
+                
+                // Connecter l'utilisateur
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Mettre à jour la dernière connexion dans Firestore
+                await db.collection('users').doc(user.uid).update({
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Afficher le message de succès
+                showSuccess('Connexion réussie !');
+                
+                // Rediriger vers la page d'accueil après 1 seconde
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+                
+            } catch (error) {
+                // Gérer les erreurs
+                let errorMsg = 'Une erreur est survenue. Veuillez réessayer.';
+                
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMsg = 'Adresse email invalide.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMsg = 'Ce compte a été désactivé.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMsg = 'Aucun compte trouvé avec cette adresse email.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMsg = 'Mot de passe incorrect.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMsg = 'Erreur de réseau. Veuillez vérifier votre connexion.';
+                        break;
+                    default:
+                        errorMsg = error.message;
+                }
+                
+                showError(errorMsg);
+            } finally {
+                // Masquer le loader et réactiver le bouton
+                loader.style.display = 'none';
+                submitButton.disabled = false;
+            }
+        });
+
+        // Gérer la réinitialisation du mot de passe
+        forgotPasswordLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            
+            if (!email) {
+                showError('Veuillez entrer votre adresse email pour réinitialiser votre mot de passe.');
+                return;
+            }
+            
+            // Envoyer l'email de réinitialisation
+            auth.sendPasswordResetEmail(email)
+                .then(() => {
+                    showSuccess('Un email de réinitialisation a été envoyé à ' + email);
+                })
+                .catch((error) => {
+                    let errorMsg = 'Une erreur est survenue lors de l\'envoi de l\'email.';
+                    
+                    switch (error.code) {
+                        case 'auth/invalid-email':
+                            errorMsg = 'Adresse email invalide.';
+                            break;
+                        case 'auth/user-not-found':
+                            errorMsg = 'Aucun compte trouvé avec cette adresse email.';
+                            break;
+                        default:
+                            errorMsg = error.message;
+                    }
+                    
+                    showError(errorMsg);
+                });
+        });
+
+        // Fonction pour afficher les messages d'erreur
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorAlert.style.display = 'block';
+            
+            // Faire défiler jusqu'à l'alerte
+            errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Fonction pour afficher les messages de succès
+        function showSuccess(message) {
+            successAlert.querySelector('i').nextSibling.textContent = ' ' + message;
+            successAlert.style.display = 'block';
+            
+            // Faire défiler jusqu'à l'alerte
+            successAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Vérifier si l'utilisateur est déjà connecté
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // Utilisateur déjà connecté, rediriger vers l'accueil
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Remplir automatiquement l'email depuis l'URL
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const email = urlParams.get('email');
+            
+            if (email) {
+                document.getElementById('email').value = email;
+            }
+        });
+    </script>
+</body>
+</html>
