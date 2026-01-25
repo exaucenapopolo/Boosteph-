@@ -40,9 +40,8 @@
             background-color: #f9f9ff;
             min-height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            flex-direction: column;
+            padding-top: 80px;
             background: linear-gradient(135deg, #f5f7ff 0%, #eef1ff 100%);
             position: relative;
             overflow-x: hidden;
@@ -78,15 +77,102 @@
             line-height: 1.2;
         }
 
+        /* Header Styles */
+        header {
+            background-color: white;
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 15px 0;
+        }
+
+        .header-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo span {
+            color: var(--dark);
+        }
+
+        .logo i {
+            margin-right: 8px;
+            font-size: 24px;
+        }
+
+        .mobile-menu {
+            display: none;
+            font-size: 24px;
+            color: var(--dark);
+            cursor: pointer;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav li {
+            margin-left: 30px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 16px;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        nav a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            left: 0;
+            bottom: -5px;
+            transition: var(--transition);
+        }
+
+        nav a:hover:after {
+            width: 100%;
+        }
+
         .container {
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             z-index: 1;
+            flex: 1;
         }
 
         .auth-container {
@@ -98,6 +184,7 @@
             box-shadow: var(--shadow);
             overflow: hidden;
             min-height: 600px;
+            margin-top: 20px;
         }
 
         .auth-left {
@@ -116,26 +203,6 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-        }
-
-        .logo {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 32px;
-            font-weight: 800;
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .logo span {
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .logo i {
-            margin-right: 10px;
-            font-size: 28px;
         }
 
         .auth-left h2 {
@@ -165,15 +232,6 @@
         .testimonial-author {
             display: flex;
             align-items: center;
-        }
-
-        .testimonial-author img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-            background-color: white;
-            padding: 5px;
         }
 
         .auth-right h2 {
@@ -311,6 +369,7 @@
             border-radius: 10px;
             margin-bottom: 20px;
             display: none;
+            align-items: center;
         }
 
         .alert-success {
@@ -323,6 +382,11 @@
             background-color: rgba(255, 71, 87, 0.1);
             color: var(--error);
             border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        .alert i {
+            margin-right: 10px;
+            font-size: 18px;
         }
 
         .loader {
@@ -366,6 +430,40 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            body {
+                padding-top: 70px;
+            }
+            
+            nav {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background-color: white;
+                padding: 20px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                transform: translateY(-150%);
+                transition: var(--transition);
+                opacity: 0;
+            }
+            
+            nav.active {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            
+            nav ul {
+                flex-direction: column;
+            }
+            
+            nav li {
+                margin: 0 0 15px 0;
+            }
+            
+            .mobile-menu {
+                display: block;
+            }
+            
             .auth-container {
                 flex-direction: column;
                 max-width: 500px;
@@ -409,12 +507,30 @@
     </style>
 </head>
 <body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-rocket"></i>boosteph<span>.</span>
+            </a>
+            
+            <div class="mobile-menu" id="mobileMenu">
+                <i class="fas fa-bars"></i>
+            </div>
+            
+            <nav id="navMenu">
+                <ul>
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="inscription.html">Inscription</a></li>
+                    <li><a href="connexion.html" class="cta-button">Connexion</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
     <div class="container">
         <div class="auth-container">
             <div class="auth-left">
-                <a href="index.html" class="logo">
-                    <i class="fas fa-rocket"></i>boosteph<span>.</span>
-                </a>
                 <h2>Bienvenue sur Boosteph</h2>
                 <p>Connectez-vous à votre compte pour gérer vos services de boost et accéder à votre tableau de bord.</p>
                 
@@ -439,7 +555,7 @@
                 <p class="auth-subtitle">Entrez vos identifiants pour accéder à votre compte</p>
                 
                 <div id="successAlert" class="alert alert-success">
-                    <i class="fas fa-check-circle"></i> Connexion réussie ! Redirection...
+                    <i class="fas fa-check-circle"></i> <span id="successMessage">Connexion réussie ! Redirection...</span>
                 </div>
                 
                 <div id="errorAlert" class="alert alert-error">
@@ -504,12 +620,22 @@
         const loginForm = document.getElementById('loginForm');
         const successAlert = document.getElementById('successAlert');
         const errorAlert = document.getElementById('errorAlert');
+        const successMessage = document.getElementById('successMessage');
         const errorMessage = document.getElementById('errorMessage');
         const loader = document.getElementById('loader');
         const submitButton = document.getElementById('submitButton');
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
         const forgotPasswordLink = document.getElementById('forgotPassword');
+        const mobileMenuBtn = document.getElementById('mobileMenu');
+        const navMenu = document.getElementById('navMenu');
+
+        // Mobile menu toggle
+        mobileMenuBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            mobileMenuBtn.querySelector('i').classList.toggle('fa-bars');
+            mobileMenuBtn.querySelector('i').classList.toggle('fa-times');
+        });
 
         // Basculer la visibilité du mot de passe
         togglePassword.addEventListener('click', function() {
@@ -559,35 +685,44 @@
                 });
                 
                 // Afficher le message de succès
-                showSuccess('Connexion réussie !');
+                showSuccess('Connexion réussie ! Redirection vers votre tableau de bord...');
                 
-                // Rediriger vers la page d'accueil après 1 seconde
+                // Rediriger vers le tableau de bord après 1 seconde
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = 'dashboard.html';
                 }, 1000);
                 
             } catch (error) {
                 // Gérer les erreurs
-                let errorMsg = 'Une erreur est survenue. Veuillez réessayer.';
+                let errorMsg = 'Une erreur est survenue lors de la connexion. Veuillez réessayer.';
                 
                 switch (error.code) {
                     case 'auth/invalid-email':
-                        errorMsg = 'Adresse email invalide.';
+                        errorMsg = 'Adresse email invalide. Veuillez entrer une adresse email valide.';
                         break;
                     case 'auth/user-disabled':
-                        errorMsg = 'Ce compte a été désactivé.';
+                        errorMsg = 'Ce compte a été désactivé. Veuillez contacter le support.';
                         break;
                     case 'auth/user-not-found':
-                        errorMsg = 'Aucun compte trouvé avec cette adresse email.';
+                        errorMsg = 'Aucun compte trouvé avec cette adresse email. Veuillez vérifier votre email ou vous inscrire.';
                         break;
                     case 'auth/wrong-password':
-                        errorMsg = 'Mot de passe incorrect.';
+                        errorMsg = 'Mot de passe incorrect. Veuillez réessayer ou utiliser la fonction "Mot de passe oublié".';
+                        break;
+                    case 'auth/invalid-credential':
+                        errorMsg = 'Identifiants incorrects. Veuillez vérifier votre email et mot de passe.';
                         break;
                     case 'auth/network-request-failed':
-                        errorMsg = 'Erreur de réseau. Veuillez vérifier votre connexion.';
+                        errorMsg = 'Erreur de réseau. Veuillez vérifier votre connexion internet et réessayer.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMsg = 'Trop de tentatives de connexion. Veuillez réessayer plus tard ou réinitialiser votre mot de passe.';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMsg = 'La connexion par email/mot de passe n\'est pas activée. Veuillez contacter le support.';
                         break;
                     default:
-                        errorMsg = error.message;
+                        errorMsg = `Erreur: ${error.message}`;
                 }
                 
                 showError(errorMsg);
@@ -612,20 +747,26 @@
             // Envoyer l'email de réinitialisation
             auth.sendPasswordResetEmail(email)
                 .then(() => {
-                    showSuccess('Un email de réinitialisation a été envoyé à ' + email);
+                    showSuccess('Un email de réinitialisation a été envoyé à ' + email + '. Vérifiez votre boîte de réception.');
                 })
                 .catch((error) => {
-                    let errorMsg = 'Une erreur est survenue lors de l\'envoi de l\'email.';
+                    let errorMsg = 'Une erreur est survenue lors de l\'envoi de l\'email de réinitialisation.';
                     
                     switch (error.code) {
                         case 'auth/invalid-email':
-                            errorMsg = 'Adresse email invalide.';
+                            errorMsg = 'Adresse email invalide. Veuillez entrer une adresse email valide.';
                             break;
                         case 'auth/user-not-found':
                             errorMsg = 'Aucun compte trouvé avec cette adresse email.';
                             break;
+                        case 'auth/too-many-requests':
+                            errorMsg = 'Trop de demandes de réinitialisation. Veuillez réessayer plus tard.';
+                            break;
+                        case 'auth/network-request-failed':
+                            errorMsg = 'Erreur de réseau. Veuillez vérifier votre connexion internet.';
+                            break;
                         default:
-                            errorMsg = error.message;
+                            errorMsg = `Erreur: ${error.message}`;
                     }
                     
                     showError(errorMsg);
@@ -635,7 +776,7 @@
         // Fonction pour afficher les messages d'erreur
         function showError(message) {
             errorMessage.textContent = message;
-            errorAlert.style.display = 'block';
+            errorAlert.style.display = 'flex';
             
             // Faire défiler jusqu'à l'alerte
             errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -643,8 +784,8 @@
 
         // Fonction pour afficher les messages de succès
         function showSuccess(message) {
-            successAlert.querySelector('i').nextSibling.textContent = ' ' + message;
-            successAlert.style.display = 'block';
+            successMessage.textContent = message;
+            successAlert.style.display = 'flex';
             
             // Faire défiler jusqu'à l'alerte
             successAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -653,8 +794,8 @@
         // Vérifier si l'utilisateur est déjà connecté
         auth.onAuthStateChanged((user) => {
             if (user) {
-                // Utilisateur déjà connecté, rediriger vers l'accueil
-                window.location.href = 'index.html';
+                // Utilisateur déjà connecté, rediriger vers le dashboard
+                window.location.href = 'dashboard.html';
             }
         });
 
