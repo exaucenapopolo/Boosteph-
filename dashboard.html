@@ -1,0 +1,2600 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord - Boosteph</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        :root {
+            --primary: #6c63ff;
+            --primary-dark: #554fd8;
+            --secondary: #ff6584;
+            --dark: #1a1a2e;
+            --dark-light: #2a2a3e;
+            --light: #f8f9fa;
+            --gray: #8a8a9e;
+            --success: #36d399;
+            --warning: #fbbf24;
+            --error: #ff4757;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f9f9ff;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Dashboard */
+        header {
+            background-color: white;
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 15px 0;
+            transition: var(--transition);
+        }
+
+        header.scrolled {
+            padding: 10px 0;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo span {
+            color: var(--dark);
+        }
+
+        .logo i {
+            margin-right: 8px;
+            font-size: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-balance {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+        }
+
+        .user-balance i {
+            margin-right: 8px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-weight: 500;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            width: 200px;
+            padding: 15px 0;
+            display: none;
+            z-index: 100;
+        }
+
+        .user-dropdown.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-dropdown a {
+            display: block;
+            padding: 10px 20px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .user-dropdown a:hover {
+            background-color: #f5f7ff;
+            color: var(--primary);
+        }
+
+        .user-dropdown a i {
+            margin-right: 10px;
+            width: 20px;
+        }
+
+        .mobile-menu {
+            display: none;
+            font-size: 24px;
+            color: var(--dark);
+            cursor: pointer;
+        }
+
+        /* Main Dashboard Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: white;
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.05);
+            padding: 30px 0;
+            position: fixed;
+            left: 0;
+            top: 80px;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            transition: var(--transition);
+            z-index: 999;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: #f5f7ff;
+            color: var(--primary);
+            border-left-color: var(--primary);
+        }
+
+        .sidebar-menu a i {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 24px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            margin-left: 250px;
+            transition: var(--transition);
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            background: linear-gradient(135deg, #6c63ff 0%, #554fd8 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-section:before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            top: -150px;
+            right: -100px;
+        }
+
+        .welcome-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .welcome-section p {
+            opacity: 0.9;
+            max-width: 600px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-top: 4px solid var(--primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(108, 99, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: var(--gray);
+        }
+
+        /* Order Form */
+        .order-section {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: var(--dark);
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .form-stepper {
+            display: flex;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .form-stepper:before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: #eee;
+            top: 20px;
+            left: 0;
+            z-index: 1;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            border: 2px solid #eee;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: 600;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .step.active .step-number {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(108, 99, 255, 0.3);
+        }
+
+        .step.completed .step-number {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .step-label {
+            font-weight: 500;
+            color: var(--gray);
+        }
+
+        .step.active .step-label {
+            color: var(--dark);
+        }
+
+        .form-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            transition: var(--transition);
+            background-color: white;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+        }
+
+        .quality-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .quality-option {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .quality-option:hover {
+            border-color: var(--primary);
+        }
+
+        .quality-option.selected {
+            border-color: var(--primary);
+            background-color: rgba(108, 99, 255, 0.05);
+        }
+
+        .quality-option h4 {
+            margin-bottom: 5px;
+        }
+
+        .quality-price {
+            font-weight: 600;
+            color: var(--primary);
+            margin: 5px 0;
+        }
+
+        .quality-time {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .quantity-input {
+            display: flex;
+            align-items: center;
+        }
+
+        .quantity-input input {
+            flex: 1;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .quantity-btn {
+            width: 40px;
+            height: 40px;
+            background-color: #f5f7ff;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .quantity-btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Order Summary */
+        .order-summary {
+            background-color: #f9f9ff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 1px solid #eee;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .summary-label {
+            color: var(--gray);
+        }
+
+        .summary-value {
+            font-weight: 600;
+        }
+
+        .total-price {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        .cta-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+            width: 100%;
+            font-family: 'Poppins', sans-serif;
+            margin-top: 20px;
+        }
+
+        .cta-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(108, 99, 255, 0.4);
+        }
+
+        .cta-button:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Services Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .service-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-top: 4px solid var(--primary);
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .service-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(108, 99, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        .service-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .service-option {
+            padding: 15px;
+            background-color: #f9f9ff;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .service-option:last-child {
+            margin-bottom: 0;
+        }
+
+        .option-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .option-name {
+            font-weight: 500;
+        }
+
+        .option-price {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .option-time {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        /* Recent Orders */
+        .orders-table {
+            width: 100%;
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-top: 30px;
+        }
+
+        .orders-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .orders-table th {
+            background-color: #f5f7ff;
+            padding: 15px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .orders-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .orders-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status.completed {
+            background-color: rgba(54, 211, 153, 0.1);
+            color: var(--success);
+        }
+
+        .status.pending {
+            background-color: rgba(251, 191, 36, 0.1);
+            color: var(--warning);
+        }
+
+        .status.processing {
+            background-color: rgba(108, 99, 255, 0.1);
+            color: var(--primary);
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+        }
+
+        .alert-success {
+            background-color: rgba(54, 211, 153, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(54, 211, 153, 0.3);
+        }
+
+        .alert-error {
+            background-color: rgba(255, 71, 87, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        .alert i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid rgba(108, 99, 255, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid var(--primary);
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                padding-top: 70px;
+            }
+            
+            .sidebar {
+                top: 70px;
+                height: calc(100vh - 70px);
+            }
+            
+            .welcome-section h1 {
+                font-size: 2rem;
+            }
+            
+            .form-container {
+                flex-direction: column;
+            }
+            
+            .user-name {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .welcome-section {
+                padding: 30px 20px;
+            }
+            
+            .order-section {
+                padding: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="mobile-menu" id="mobileMenu">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                    <a href="index.html" class="logo">
+                        <i class="fas fa-rocket"></i>boosteph<span>.</span>
+                    </a>
+                </div>
+                
+                <div class="user-info">
+                    <div class="user-balance" id="userBalance">
+                        <i class="fas fa-wallet"></i>
+                        <span id="balanceAmount">Chargement...</span>
+                    </div>
+                    
+                    <div class="user-profile" id="userProfile">
+                        <div class="user-avatar" id="userAvatar">U</div>
+                        <div class="user-name" id="userName">Utilisateur</div>
+                        <i class="fas fa-chevron-down"></i>
+                        
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="#"><i class="fas fa-user"></i> Mon profil</a>
+                            <a href="#"><i class="fas fa-history"></i> Historique</a>
+                            <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
+                            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dashboard -->
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active" data-section="dashboard"><i class="fas fa-home"></i> Tableau de bord</a></li>
+                <li><a href="#" data-section="order"><i class="fas fa-shopping-cart"></i> Nouvelle commande</a></li>
+                <li><a href="#" data-section="services"><i class="fas fa-th-list"></i> Services disponibles</a></li>
+                <li><a href="#" data-section="orders"><i class="fas fa-history"></i> Mes commandes</a></li>
+                <li><a href="#" data-section="recharge"><i class="fas fa-credit-card"></i> Recharger mon compte</a></li>
+                <li><a href="#" data-section="support"><i class="fas fa-headset"></i> Support</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Dashboard Section -->
+            <div class="dashboard-section" id="dashboardSection">
+                <div class="welcome-section">
+                    <h1>Bienvenue, <span id="welcomeName">Utilisateur</span> !</h1>
+                    <p>Gérez vos services de boost et augmentez votre visibilité sur les réseaux sociaux en quelques clics.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <h3 id="balanceStat">0 XAF</h3>
+                        <p>Solde actuel</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <h3 id="ordersStat">0</h3>
+                        <p>Commandes totales</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3 id="completedStat">0</h3>
+                        <p>Commandes terminées</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h3 id="pendingStat">0</h3>
+                        <p>Commandes en cours</p>
+                    </div>
+                </div>
+
+                <div class="order-section">
+                    <h2 class="section-title">Commander rapidement</h2>
+                    <div class="form-container">
+                        <div class="form-group">
+                            <label class="form-label" for="quickPlatform">Plateforme</label>
+                            <select id="quickPlatform" class="form-select">
+                                <option value="">Sélectionnez une plateforme</option>
+                                <option value="instagram">Instagram</option>
+                                <option value="facebook">Facebook</option>
+                                <option value="tiktok">TikTok</option>
+                                <option value="youtube">YouTube</option>
+                                <option value="whatsapp">WhatsApp</option>
+                                <option value="telegram">Telegram</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="quickService">Service</label>
+                            <select id="quickService" class="form-select" disabled>
+                                <option value="">Sélectionnez d'abord une plateforme</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Qualité</label>
+                            <div class="quality-selector" id="quickQuality">
+                                <!-- Quality options will be loaded dynamically -->
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="quickQuantity">Quantité</label>
+                            <div class="quantity-input">
+                                <button class="quantity-btn" id="quickMinus">-</button>
+                                <input type="number" id="quickQuantity" class="form-input" value="100" min="1">
+                                <button class="quantity-btn" id="quickPlus">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-summary">
+                        <div class="summary-item">
+                            <span class="summary-label">Prix unitaire:</span>
+                            <span class="summary-value" id="quickUnitPrice">0 XAF</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Quantité:</span>
+                            <span class="summary-value" id="quickQuantityDisplay">0</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Prix total:</span>
+                            <span class="summary-value total-price" id="quickTotalPrice">0 XAF</span>
+                        </div>
+                    </div>
+                    
+                    <button class="cta-button" id="quickOrderBtn">Commander maintenant</button>
+                </div>
+            </div>
+
+            <!-- Order Section (hidden by default) -->
+            <div class="dashboard-section" id="orderSection" style="display: none;">
+                <div class="order-section">
+                    <h2 class="section-title">Nouvelle commande</h2>
+                    
+                    <div class="form-stepper">
+                        <div class="step active" data-step="1">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Plateforme</div>
+                        </div>
+                        <div class="step" data-step="2">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Service</div>
+                        </div>
+                        <div class="step" data-step="3">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Configuration</div>
+                        </div>
+                        <div class="step" data-step="4">
+                            <div class="step-number">4</div>
+                            <div class="step-label">Paiement</div>
+                        </div>
+                    </div>
+
+                    <div id="orderForm">
+                        <!-- Step 1: Platform Selection -->
+                        <div class="form-step" id="step1" style="display: block;">
+                            <h3 style="margin-bottom: 20px;">Sélectionnez une plateforme</h3>
+                            <div class="services-grid" id="platformsGrid">
+                                <!-- Platforms will be loaded dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Service Selection -->
+                        <div class="form-step" id="step2" style="display: none;">
+                            <h3 style="margin-bottom: 20px;">Sélectionnez un service</h3>
+                            <div class="services-grid" id="servicesGrid">
+                                <!-- Services will be loaded dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Configuration -->
+                        <div class="form-step" id="step3" style="display: none;">
+                            <h3 style="margin-bottom: 20px;">Configurez votre commande</h3>
+                            <div class="form-container">
+                                <div class="form-group">
+                                    <label class="form-label">Qualité</label>
+                                    <div class="quality-selector" id="qualityOptions">
+                                        <!-- Quality options will be loaded dynamically -->
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="orderQuantity">Quantité</label>
+                                    <div class="quantity-input">
+                                        <button class="quantity-btn" id="orderMinus">-</button>
+                                        <input type="number" id="orderQuantity" class="form-input" value="100" min="1">
+                                        <button class="quantity-btn" id="orderPlus">+</button>
+                                    </div>
+                                    <p style="margin-top: 10px; color: var(--gray); font-size: 0.9rem;">Prix calculé pour 1000 unités: <span id="pricePer1000">0 XAF</span></p>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="orderLink">Lien/URL</label>
+                                    <input type="text" id="orderLink" class="form-input" placeholder="https://instagram.com/p/..." required>
+                                </div>
+                            </div>
+                            
+                            <div class="order-summary">
+                                <div class="summary-item">
+                                    <span class="summary-label">Service:</span>
+                                    <span class="summary-value" id="summaryService">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Qualité:</span>
+                                    <span class="summary-value" id="summaryQuality">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Quantité:</span>
+                                    <span class="summary-value" id="summaryQuantity">0</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Prix unitaire:</span>
+                                    <span class="summary-value" id="summaryUnitPrice">0 XAF</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Prix total:</span>
+                                    <span class="summary-value total-price" id="summaryTotalPrice">0 XAF</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Temps estimé:</span>
+                                    <span class="summary-value" id="summaryTime">-</span>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 20px; margin-top: 30px;">
+                                <button class="cta-button" id="prevStepBtn" style="background-color: var(--gray);">Précédent</button>
+                                <button class="cta-button" id="nextStepBtn">Suivant</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Payment -->
+                        <div class="form-step" id="step4" style="display: none;">
+                            <h3 style="margin-bottom: 20px;">Confirmez votre commande</h3>
+                            <div class="order-summary">
+                                <div class="summary-item">
+                                    <span class="summary-label">Service:</span>
+                                    <span class="summary-value" id="confirmService">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Plateforme:</span>
+                                    <span class="summary-value" id="confirmPlatform">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Qualité:</span>
+                                    <span class="summary-value" id="confirmQuality">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Quantité:</span>
+                                    <span class="summary-value" id="confirmQuantity">0</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Lien:</span>
+                                    <span class="summary-value" id="confirmLink">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Prix total:</span>
+                                    <span class="summary-value total-price" id="confirmTotalPrice">0 XAF</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Votre solde:</span>
+                                    <span class="summary-value" id="confirmBalance">0 XAF</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Solde après:</span>
+                                    <span class="summary-value" id="confirmAfterBalance">0 XAF</span>
+                                </div>
+                            </div>
+                            
+                            <div class="alert" id="paymentAlert">
+                                <i class="fas fa-exclamation-circle"></i> <span id="paymentMessage"></span>
+                            </div>
+                            
+                            <div style="display: flex; gap: 20px; margin-top: 30px;">
+                                <button class="cta-button" id="prevStep2Btn" style="background-color: var(--gray);">Précédent</button>
+                                <button class="cta-button" id="confirmOrderBtn">Confirmer et payer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Services Section (hidden by default) -->
+            <div class="dashboard-section" id="servicesSection" style="display: none;">
+                <div class="order-section">
+                    <h2 class="section-title">Services disponibles</h2>
+                    <p style="margin-bottom: 30px; color: var(--gray);">Voici la liste complète de tous nos services avec leurs prix et temps de réalisation.</p>
+                    
+                    <div id="allServices">
+                        <!-- All services will be loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Section (hidden by default) -->
+            <div class="dashboard-section" id="ordersSection" style="display: none;">
+                <div class="order-section">
+                    <h2 class="section-title">Mes commandes récentes</h2>
+                    
+                    <div class="orders-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>Service</th>
+                                    <th>Quantité</th>
+                                    <th>Prix</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 40px;">
+                                        <div class="loader" id="ordersLoader">
+                                            <div class="spinner"></div>
+                                        </div>
+                                        <p style="color: var(--gray);">Chargement de vos commandes...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Messages -->
+            <div class="alert" id="successAlert">
+                <i class="fas fa-check-circle"></i> <span id="successMessage"></span>
+            </div>
+            
+            <div class="alert" id="errorAlert">
+                <i class="fas fa-exclamation-circle"></i> <span id="errorMessage"></span>
+            </div>
+            
+            <div class="loader" id="mainLoader">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyADHHilol6wT52bjGihwj5qx2O1awQdfTk",
+            authDomain: "yokason-4582d.firebaseapp.com",
+            projectId: "yokason-4582d",
+            storageBucket: "yokason-4582d.firebasestorage.app",
+            messagingSenderId: "953463074169",
+            appId: "1:953463074169:web:8840544c6fa73559e353a8"
+        };
+
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Données des services
+        const servicesData = {
+            "instagram": {
+                name: "Instagram",
+                icon: "fab fa-instagram",
+                color: "#E1306C",
+                services: [
+                    {
+                        id: "instagram_comments",
+                        name: "Commentaires Personnalisés",
+                        unit: 10,
+                        baseUnit: 10,
+                        qualities: [
+                            {
+                                name: "Qualité moyenne",
+                                id: "moyenne",
+                                price: 81.6,
+                                time: "4h",
+                                perUnit: "10 commentaires"
+                            },
+                            {
+                                name: "Haute qualité",
+                                id: "haute",
+                                price: 163.2,
+                                time: "2h",
+                                perUnit: "10 commentaires"
+                            }
+                        ]
+                    },
+                    {
+                        id: "instagram_likes",
+                        name: "J'aime",
+                        unit: 1000,
+                        baseUnit: 1000,
+                        qualities: [
+                            {
+                                name: "Qualité moyenne",
+                                id: "moyenne",
+                                price: 367.2,
+                                time: "1h",
+                                perUnit: "1K j'aime"
+                            },
+                            {
+                                name: "Haute qualité",
+                                id: "haute",
+                                price: 544,
+                                time: "30 min",
+                                perUnit: "1K j'aime"
+                            }
+                        ]
+                    },
+                    {
+                        id: "instagram_views",
+                        name: "Vues Vidéo/Reel",
+                        unit: 1000,
+                        baseUnit: 1000,
+                        qualities: [
+                            {
+                                name: "Qualité moyenne",
+                                id: "moyenne",
+                                price: 5.44,
+                                time: "30 min",
+                                perUnit: "1K vues"
+                            },
+                            {
+                                name: "Haute qualité",
+                                id: "haute",
+                                price: 20.4,
+                                time: "10 min",
+                                perUnit: "1K vues"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "youtube": {
+                name: "YouTube",
+                icon: "fab fa-youtube",
+                color: "#FF0000",
+                services: [
+                    {
+                        id: "youtube_views",
+                        name: "Vues",
+                        unit: 1000,
+                        baseUnit: 1000,
+                        qualities: [
+                            {
+                                name: "Qualité moyenne",
+                                id: "moyenne",
+                                price: 1360,
+                                time: "5h",
+                                perUnit: "1K vues"
+                            },
+                            {
+                                name: "Haute qualité",
+                                id: "haute",
+                                price: 1904,
+                                time: "7h",
+                                perUnit: "1K vues"
+                            }
+                        ]
+                    },
+                    {
+                        id: "youtube_subscribers",
+                        name: "Abonnés",
+                        unit: 1000,
+                        baseUnit: 1000,
+                        qualities: [
+                            {
+                                name: "Qualité moyenne",
+                                id: "moyenne",
+                                price: 31280,
+                                time: "24h",
+                                perUnit: "1K abonnés"
+                            },
+                            {
+                                name: "Haute qualité",
+                                id: "haute",
+                                price: 35360,
+                                time: "20h",
+                                perUnit: "1K abonnés"
+                            }
+                        ]
+                    },
+                    {
+                        id: "youtube_likes",
+                        name: "J'aime",
+                        unit: 1000,
+                        baseUnit: 1000,
+                        qualities: [
+                            {
+                                name: "Qualité moyenne",
+                                id: "moyenne",
+                                price: 367.2,
+                                time: "2h",
+                                perUnit: "1K j'aime"
+                            },
+                            {
+                                name: "Haute qualité",
+                                id: "haute",
+                                price: 1781.6,
+                                time: "1h",
+                                perUnit: "1K j'aime"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "facebook": {
+                name: "Facebook",
+                icon: "fab fa-facebook",
+                color: "#1877F2",
+                services: [
+                    {
+                        id: "facebook_views",
+                        name: "Vues Vidéo/Reel",
+                        unit: 1000,
+                        baseUnit: 1000,
+                        qualities: [
+                            {
+                                name: "Qualité moyenne",
+                                id: "moyenne",
+                                price: 122.4,
+                                time: "N/A",
+                                perUnit: "1K vues"
+                            },
+                            {
+                                name: "Haute qualité",
+                                id: "haute",
+                                price: 204,
+                                time: "N/A",
+                                perUnit: "1K vues"
+                            }
+                        ]
+                    },
+                    {
+                        id: "facebook_comments",
+                        name: "Commentaires Personnalisés",
+                        unit: 10,
+                        baseUnit: 10,
+                        qualities: [
+                            {
+                                name: "Masculins (🇺🇸)",
+                                id: "masculins",
+                                price: 1237.6,
+                                time: "N/A",
+                                perUnit: "10 commentaires"
+                            },
+                            {
+                                name: "Féminins (🇺🇸)",
+                                id: "feminins",
+                                price: 1414.4,
+                                time: "N/A",
+                                perUnit: "10 commentaires"
+                            }
+                        ]
+                    },
+                    {
+                        id: "facebook_reactions",
+                        name: "Réaction Emoji",
+                        unit: 1000,
+                        baseUnit: 1000,
+                        qualities: [
+                            {
+                                name: "Tous types",
+                                id: "tous",
+                                price: 571.2,
+                                time: "N/A",
+                                perUnit: "1K réactions"
+                            }
+                        ]
+                    },
+                    {
+                        id: "facebook_profile_followers",
+                        name: "Abonnés Profil",
+                        unit: 1000,
+                        baseUnit: 1000,
+                        qualities: [
+                            {
+                                name: "Qualité moyenne",
+                                id: "moyenne",
+                                price: 843.2,
+                                time: "N/A",
+                                perUnit: "1K abonnés"
+                            },
+                            {
+                                name: "Haute qualité",
+                                id: "haute",
+                                price: 1360,
+                                time: "N/A",
+                                perUnit: "1K abonnés"
+                            }
+                        ]
+                    },
+                    {
+                        id: "facebook_likes",
+                        name: "J'aime Publication",
+                        unit: 1000,
+                        baseUnit: 1000,
+                        qualities: [
+                            {
+                                name: "Qualité moyenne",
+                                id: "moyenne",
+                                price: 272,
+                                time: "N/A",
+                                perUnit: "1K j'aime"
+                            },
+                            {
+                                name: "Haute qualité",
+                                id: "haute",
+                                price: 544,
+                                time: "N/A",
+                                perUnit: "1K j'aime"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "tiktok": {
+                name: "TikTok",
+                icon: "fab fa-tiktok",
+                color: "#000000",
+                services: [
+                    {
+                        id: "tiktok_views",
+                        name: "Vues",
+                        unit: 1000,
+                        baseUnit: 1000,
+                        qualities: [
+                            {
+                                name: "Qualité moyenne",
+                                id: "moyenne",
+                                price: 13.6,
+                                time: "N/A",
+                                perUnit: "1K vues"
+                            },
+                            {
+                                name: "Haute qualité",
+                                id: "haute",
+                                price: 23.12,
+                                time: "N/A",
+                                perUnit: "1K vues"
+                            }
+                        ]
+                    },
+                    {
+                        id: "tiktok_likes",
+                        name: "J'aime",
+                        unit: 1000,
+                        baseUnit: 1000,
+                        qualities: [
+                            {
+                                name: "Qualité moyenne",
+                                id: "moyenne",
+                                price: 167.28,
+                                time: "N/A",
+                                perUnit: "1K j'aime"
+                            },
+                            {
+                                name: "Haute qualité",
+                                id: "haute",
+                                price: 326.4,
+                                time: "N/A",
+                                perUnit: "1K j'aime"
+                            }
+                        ]
+                    },
+                    {
+                        id: "tiktok_comments",
+                        name: "Commentaires Personnalisés",
+                        unit: 10,
+                        baseUnit: 10,
+                        qualities: [
+                            {
+                                name: "Qualité moyenne",
+                                id: "moyenne",
+                                price: 20.4,
+                                time: "N/A",
+                                perUnit: "10 commentaires"
+                            },
+                            {
+                                name: "Haute qualité",
+                                id: "haute",
+                                price: 40.8,
+                                time: "N/A",
+                                perUnit: "10 commentaires"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "whatsapp": {
+                name: "WhatsApp",
+                icon: "fab fa-whatsapp",
+                color: "#25D366",
+                services: [
+                    {
+                        id: "whatsapp_subscribers",
+                        name: "Abonnés Chaîne",
+                        unit: 1000,
+                        baseUnit: 1000,
+                        qualities: [
+                            {
+                                name: "Internationaux",
+                                id: "internationaux",
+                                price: 3400,
+                                time: "3h",
+                                perUnit: "1K abonnés"
+                            },
+                            {
+                                name: "Américains",
+                                id: "americains",
+                                price: 6120,
+                                time: "3h",
+                                perUnit: "1K abonnés"
+                            },
+                            {
+                                name: "Indiens",
+                                id: "indiens",
+                                price: 6120,
+                                time: "3h",
+                                perUnit: "1K abonnés"
+                            }
+                        ]
+                    },
+                    {
+                        id: "whatsapp_reactions",
+                        name: "Réactions Emoji",
+                        unit: 1000,
+                        baseUnit: 1000,
+                        qualities: [
+                            {
+                                name: "Toutes réactions",
+                                id: "toutes",
+                                price: 1632,
+                                time: "5h",
+                                perUnit: "1K réactions"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "telegram": {
+                name: "Telegram",
+                icon: "fab fa-telegram",
+                color: "#0088CC",
+                services: [
+                    {
+                        id: "telegram_members",
+                        name: "Membres Groupe/Canal",
+                        unit: 1000,
+                        baseUnit: 1000,
+                        qualities: [
+                            {
+                                name: "Qualité moyenne",
+                                id: "moyenne",
+                                price: 1904,
+                                time: "2h",
+                                perUnit: "1K membres"
+                            },
+                            {
+                                name: "Haute qualité",
+                                id: "haute",
+                                price: 2720,
+                                time: "1h",
+                                perUnit: "1K membres"
+                            }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        // Variables globales
+        let currentUser = null;
+        let userData = null;
+        let currentOrder = {
+            platform: null,
+            service: null,
+            quality: null,
+            quantity: 100,
+            unitPrice: 0,
+            totalPrice: 0,
+            time: "",
+            link: ""
+        };
+        let currentStep = 1;
+
+        // Éléments du DOM
+        const userBalance = document.getElementById('userBalance');
+        const balanceAmount = document.getElementById('balanceAmount');
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const userProfile = document.getElementById('userProfile');
+        const userDropdown = document.getElementById('userDropdown');
+        const welcomeName = document.getElementById('welcomeName');
+        const balanceStat = document.getElementById('balanceStat');
+        const ordersStat = document.getElementById('ordersStat');
+        const completedStat = document.getElementById('completedStat');
+        const pendingStat = document.getElementById('pendingStat');
+        const mobileMenuBtn = document.getElementById('mobileMenu');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const successAlert = document.getElementById('successAlert');
+        const errorAlert = document.getElementById('errorAlert');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const mainLoader = document.getElementById('mainLoader');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
+        const dashboardSections = document.querySelectorAll('.dashboard-section');
+
+        // Navigation entre sections
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Retirer la classe active de tous les liens
+                sidebarLinks.forEach(l => l.classList.remove('active'));
+                
+                // Ajouter la classe active au lien cliqué
+                this.classList.add('active');
+                
+                // Cacher toutes les sections
+                dashboardSections.forEach(section => {
+                    section.style.display = 'none';
+                });
+                
+                // Afficher la section correspondante
+                const sectionId = this.getAttribute('data-section');
+                document.getElementById(`${sectionId}Section`).style.display = 'block';
+                
+                // Fermer le menu mobile sur mobile
+                if (window.innerWidth <= 1200) {
+                    sidebar.classList.remove('active');
+                }
+                
+                // Si c'est la section des commandes, charger les commandes
+                if (sectionId === 'orders') {
+                    loadUserOrders();
+                }
+                
+                // Si c'est la section des services, charger tous les services
+                if (sectionId === 'services') {
+                    loadAllServices();
+                }
+            });
+        });
+
+        // Menu mobile
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        // User profile dropdown
+        userProfile.addEventListener('click', () => {
+            userDropdown.classList.toggle('active');
+        });
+
+        // Fermer le dropdown en cliquant ailleurs
+        document.addEventListener('click', (e) => {
+            if (!userProfile.contains(e.target)) {
+                userDropdown.classList.remove('active');
+            }
+        });
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            // Vérifier l'authentification
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    currentUser = user;
+                    await loadUserData();
+                    await initializeDashboard();
+                    setupOrderForms();
+                    loadPlatformsForQuickOrder();
+                    loadAllServices();
+                } else {
+                    // Rediriger vers la page de connexion
+                    window.location.href = 'connexion.html';
+                }
+            });
+        });
+
+        // Charger les données utilisateur
+        async function loadUserData() {
+            try {
+                mainLoader.style.display = 'block';
+                
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                
+                if (userDoc.exists) {
+                    userData = userDoc.data();
+                    
+                    // Vérifier et créer le champ solde s'il n'existe pas
+                    if (userData.balance === undefined) {
+                        await db.collection('users').doc(currentUser.uid).update({
+                            balance: 0,
+                            orders: 0,
+                            completedOrders: 0,
+                            pendingOrders: 0
+                        });
+                        userData.balance = 0;
+                        userData.orders = 0;
+                        userData.completedOrders = 0;
+                        userData.pendingOrders = 0;
+                    }
+                    
+                    // Mettre à jour l'interface utilisateur
+                    updateUserInterface();
+                } else {
+                    // Créer le document utilisateur s'il n'existe pas
+                    await db.collection('users').doc(currentUser.uid).set({
+                        uid: currentUser.uid,
+                        email: currentUser.email,
+                        fullName: currentUser.displayName || currentUser.email.split('@')[0],
+                        balance: 0,
+                        orders: 0,
+                        completedOrders: 0,
+                        pendingOrders: 0,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    userData = {
+                        balance: 0,
+                        orders: 0,
+                        completedOrders: 0,
+                        pendingOrders: 0,
+                        fullName: currentUser.displayName || currentUser.email.split('@')[0]
+                    };
+                    
+                    updateUserInterface();
+                }
+            } catch (error) {
+                console.error("Erreur lors du chargement des données utilisateur:", error);
+                showError("Erreur de chargement des données utilisateur");
+            } finally {
+                mainLoader.style.display = 'none';
+            }
+        }
+
+        // Mettre à jour l'interface utilisateur
+        function updateUserInterface() {
+            // Mettre à jour le nom
+            const displayName = userData.fullName || currentUser.email.split('@')[0];
+            welcomeName.textContent = displayName;
+            userName.textContent = displayName;
+            
+            // Initiales pour l'avatar
+            const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            userAvatar.textContent = initials;
+            
+            // Mettre à jour le solde
+            const balance = userData.balance || 0;
+            balanceAmount.textContent = `${balance.toLocaleString()} XAF`;
+            balanceStat.textContent = `${balance.toLocaleString()} XAF`;
+            
+            // Mettre à jour les statistiques
+            ordersStat.textContent = userData.orders || 0;
+            completedStat.textContent = userData.completedOrders || 0;
+            pendingStat.textContent = userData.pendingOrders || 0;
+        }
+
+        // Initialiser le tableau de bord
+        async function initializeDashboard() {
+            // Charger les plateformes pour le formulaire rapide
+            loadPlatformsForQuickOrder();
+            
+            // Charger les plateformes pour le formulaire principal
+            loadPlatformsForOrder();
+            
+            // Charger les commandes récentes
+            loadUserOrders();
+        }
+
+        // Charger les plateformes pour la commande rapide
+        function loadPlatformsForQuickOrder() {
+            const quickPlatformSelect = document.getElementById('quickPlatform');
+            quickPlatformSelect.innerHTML = '<option value="">Sélectionnez une plateforme</option>';
+            
+            Object.keys(servicesData).forEach(platformId => {
+                const platform = servicesData[platformId];
+                const option = document.createElement('option');
+                option.value = platformId;
+                option.textContent = platform.name;
+                quickPlatformSelect.appendChild(option);
+            });
+            
+            // Événement de changement de plateforme
+            quickPlatformSelect.addEventListener('change', function() {
+                const platformId = this.value;
+                const quickServiceSelect = document.getElementById('quickService');
+                const quickQualityDiv = document.getElementById('quickQuality');
+                
+                if (platformId) {
+                    // Charger les services pour cette plateforme
+                    const platform = servicesData[platformId];
+                    quickServiceSelect.innerHTML = '<option value="">Sélectionnez un service</option>';
+                    
+                    platform.services.forEach(service => {
+                        const option = document.createElement('option');
+                        option.value = service.id;
+                        option.textContent = service.name;
+                        quickServiceSelect.appendChild(option);
+                    });
+                    
+                    quickServiceSelect.disabled = false;
+                    quickQualityDiv.innerHTML = '';
+                } else {
+                    quickServiceSelect.innerHTML = '<option value="">Sélectionnez d\'abord une plateforme</option>';
+                    quickServiceSelect.disabled = true;
+                    quickQualityDiv.innerHTML = '';
+                }
+                
+                // Réinitialiser les prix
+                document.getElementById('quickUnitPrice').textContent = '0 XAF';
+                document.getElementById('quickQuantityDisplay').textContent = '0';
+                document.getElementById('quickTotalPrice').textContent = '0 XAF';
+            });
+            
+            // Événement de changement de service
+            const quickServiceSelect = document.getElementById('quickService');
+            quickServiceSelect.addEventListener('change', function() {
+                const platformId = quickPlatformSelect.value;
+                const serviceId = this.value;
+                const quickQualityDiv = document.getElementById('quickQuality');
+                
+                if (platformId && serviceId) {
+                    const platform = servicesData[platformId];
+                    const service = platform.services.find(s => s.id === serviceId);
+                    
+                    // Afficher les options de qualité
+                    quickQualityDiv.innerHTML = '';
+                    service.qualities.forEach((quality, index) => {
+                        const qualityOption = document.createElement('div');
+                        qualityOption.className = `quality-option ${index === 0 ? 'selected' : ''}`;
+                        qualityOption.setAttribute('data-quality', quality.id);
+                        
+                        qualityOption.innerHTML = `
+                            <h4>${quality.name}</h4>
+                            <div class="quality-price">${quality.price.toLocaleString()} XAF</div>
+                            <div class="quality-time">${quality.perUnit}</div>
+                            <div class="quality-time">${quality.time}</div>
+                        `;
+                        
+                        qualityOption.addEventListener('click', function() {
+                            // Retirer la classe selected de toutes les options
+                            quickQualityDiv.querySelectorAll('.quality-option').forEach(opt => {
+                                opt.classList.remove('selected');
+                            });
+                            
+                            // Ajouter la classe selected à l'option cliquée
+                            this.classList.add('selected');
+                            
+                            // Mettre à jour le prix
+                            updateQuickOrderPrice();
+                        });
+                        
+                        quickQualityDiv.appendChild(qualityOption);
+                    });
+                    
+                    // Mettre à jour la quantité par défaut
+                    document.getElementById('quickQuantity').value = service.unit;
+                    
+                    // Mettre à jour le prix
+                    updateQuickOrderPrice();
+                } else {
+                    quickQualityDiv.innerHTML = '';
+                }
+            });
+            
+            // Gestion des boutons de quantité
+            document.getElementById('quickMinus').addEventListener('click', function() {
+                const quantityInput = document.getElementById('quickQuantity');
+                let quantity = parseInt(quantityInput.value) || 100;
+                if (quantity > 1) {
+                    quantityInput.value = quantity - 1;
+                    updateQuickOrderPrice();
+                }
+            });
+            
+            document.getElementById('quickPlus').addEventListener('click', function() {
+                const quantityInput = document.getElementById('quickQuantity');
+                let quantity = parseInt(quantityInput.value) || 100;
+                quantityInput.value = quantity + 1;
+                updateQuickOrderPrice();
+            });
+            
+            document.getElementById('quickQuantity').addEventListener('input', updateQuickOrderPrice);
+            
+            // Bouton de commande rapide
+            document.getElementById('quickOrderBtn').addEventListener('click', async function() {
+                const platformId = quickPlatformSelect.value;
+                const serviceId = quickServiceSelect.value;
+                const qualityElement = quickQualityDiv.querySelector('.quality-option.selected');
+                
+                if (!platformId || !serviceId || !qualityElement) {
+                    showError('Veuillez compléter tous les champs avant de commander');
+                    return;
+                }
+                
+                const platform = servicesData[platformId];
+                const service = platform.services.find(s => s.id === serviceId);
+                const qualityId = qualityElement.getAttribute('data-quality');
+                const quality = service.qualities.find(q => q.id === qualityId);
+                const quantity = parseInt(document.getElementById('quickQuantity').value) || 100;
+                
+                // Calculer le prix total
+                let totalPrice = 0;
+                if (service.unit === 10) {
+                    // Pour les commentaires (vendu par 10)
+                    totalPrice = (quantity / 10) * quality.price;
+                } else {
+                    // Pour les autres services (vendu par 1000)
+                    totalPrice = (quantity / 1000) * quality.price;
+                }
+                
+                // Vérifier le solde
+                if (userData.balance < totalPrice) {
+                    showError(`Solde insuffisant. Vous avez ${userData.balance.toLocaleString()} XAF, besoin de ${totalPrice.toLocaleString()} XAF`);
+                    return;
+                }
+                
+                // Demander le lien
+                const link = prompt(`Entrez le lien pour votre commande de ${service.name} sur ${platform.name}:`);
+                if (!link) {
+                    showError('Le lien est requis pour passer la commande');
+                    return;
+                }
+                
+                try {
+                    mainLoader.style.display = 'block';
+                    
+                    // Créer la commande
+                    const orderData = {
+                        userId: currentUser.uid,
+                        platform: platformId,
+                        platformName: platform.name,
+                        service: serviceId,
+                        serviceName: service.name,
+                        quality: qualityId,
+                        qualityName: quality.name,
+                        quantity: quantity,
+                        unitPrice: quality.price,
+                        totalPrice: totalPrice,
+                        link: link,
+                        status: 'pending',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        estimatedTime: quality.time
+                    };
+                    
+                    // Ajouter la commande à Firestore
+                    await db.collection('orders').add(orderData);
+                    
+                    // Mettre à jour le solde de l'utilisateur
+                    const newBalance = userData.balance - totalPrice;
+                    await db.collection('users').doc(currentUser.uid).update({
+                        balance: newBalance,
+                        orders: firebase.firestore.FieldValue.increment(1),
+                        pendingOrders: firebase.firestore.FieldValue.increment(1)
+                    });
+                    
+                    // Mettre à jour les données locales
+                    userData.balance = newBalance;
+                    userData.orders = (userData.orders || 0) + 1;
+                    userData.pendingOrders = (userData.pendingOrders || 0) + 1;
+                    
+                    // Mettre à jour l'interface
+                    updateUserInterface();
+                    
+                    // Afficher le message de succès
+                    showSuccess(`Commande passée avec succès! ${quantity} ${service.name} pour ${totalPrice.toLocaleString()} XAF`);
+                    
+                    // Réinitialiser le formulaire
+                    quickPlatformSelect.value = '';
+                    quickServiceSelect.innerHTML = '<option value="">Sélectionnez d\'abord une plateforme</option>';
+                    quickServiceSelect.disabled = true;
+                    quickQualityDiv.innerHTML = '';
+                    document.getElementById('quickUnitPrice').textContent = '0 XAF';
+                    document.getElementById('quickQuantityDisplay').textContent = '0';
+                    document.getElementById('quickTotalPrice').textContent = '0 XAF';
+                    
+                } catch (error) {
+                    console.error("Erreur lors de la commande:", error);
+                    showError("Erreur lors du traitement de la commande");
+                } finally {
+                    mainLoader.style.display = 'none';
+                }
+            });
+        }
+
+        // Mettre à jour le prix pour la commande rapide
+        function updateQuickOrderPrice() {
+            const platformId = document.getElementById('quickPlatform').value;
+            const serviceId = document.getElementById('quickService').value;
+            const qualityElement = document.getElementById('quickQuality').querySelector('.quality-option.selected');
+            const quantity = parseInt(document.getElementById('quickQuantity').value) || 0;
+            
+            if (platformId && serviceId && qualityElement) {
+                const platform = servicesData[platformId];
+                const service = platform.services.find(s => s.id === serviceId);
+                const qualityId = qualityElement.getAttribute('data-quality');
+                const quality = service.qualities.find(q => q.id === qualityId);
+                
+                // Afficher le prix unitaire
+                document.getElementById('quickUnitPrice').textContent = `${quality.price.toLocaleString()} XAF`;
+                
+                // Afficher la quantité
+                document.getElementById('quickQuantityDisplay').textContent = quantity;
+                
+                // Calculer et afficher le prix total
+                let totalPrice = 0;
+                if (service.unit === 10) {
+                    totalPrice = (quantity / 10) * quality.price;
+                } else {
+                    totalPrice = (quantity / 1000) * quality.price;
+                }
+                
+                document.getElementById('quickTotalPrice').textContent = `${totalPrice.toLocaleString()} XAF`;
+            }
+        }
+
+        // Charger les plateformes pour le formulaire principal
+        function loadPlatformsForOrder() {
+            const platformsGrid = document.getElementById('platformsGrid');
+            platformsGrid.innerHTML = '';
+            
+            Object.keys(servicesData).forEach(platformId => {
+                const platform = servicesData[platformId];
+                
+                const platformCard = document.createElement('div');
+                platformCard.className = 'service-card';
+                platformCard.setAttribute('data-platform', platformId);
+                platformCard.style.borderTopColor = platform.color;
+                
+                platformCard.innerHTML = `
+                    <div class="service-header">
+                        <div class="service-icon" style="background-color: ${platform.color}20; color: ${platform.color};">
+                            <i class="${platform.icon}"></i>
+                        </div>
+                        <div class="service-name">${platform.name}</div>
+                    </div>
+                    <p style="color: var(--gray); margin-bottom: 15px;">${platform.services.length} services disponibles</p>
+                `;
+                
+                platformCard.addEventListener('click', function() {
+                    // Sélectionner cette plateforme
+                    currentOrder.platform = platformId;
+                    
+                    // Mettre à jour l'étape
+                    goToStep(2);
+                    
+                    // Charger les services pour cette plateforme
+                    loadServicesForPlatform(platformId);
+                });
+                
+                platformsGrid.appendChild(platformCard);
+            });
+        }
+
+        // Charger les services pour une plateforme
+        function loadServicesForPlatform(platformId) {
+            const servicesGrid = document.getElementById('servicesGrid');
+            servicesGrid.innerHTML = '';
+            
+            const platform = servicesData[platformId];
+            
+            platform.services.forEach(service => {
+                const serviceCard = document.createElement('div');
+                serviceCard.className = 'service-card';
+                serviceCard.setAttribute('data-service', service.id);
+                
+                serviceCard.innerHTML = `
+                    <div class="service-header">
+                        <div class="service-icon">
+                            <i class="${platform.icon}"></i>
+                        </div>
+                        <div class="service-name">${service.name}</div>
+                    </div>
+                `;
+                
+                // Ajouter les options de qualité
+                service.qualities.forEach(quality => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'service-option';
+                    
+                    optionDiv.innerHTML = `
+                        <div class="option-header">
+                            <div class="option-name">${quality.name}</div>
+                            <div class="option-price">${quality.price.toLocaleString()} XAF</div>
+                        </div>
+                        <div class="option-time">${quality.perUnit} • ${quality.time}</div>
+                    `;
+                    
+                    serviceCard.appendChild(optionDiv);
+                });
+                
+                serviceCard.addEventListener('click', function() {
+                    // Sélectionner ce service
+                    currentOrder.service = service.id;
+                    currentOrder.serviceName = service.name;
+                    
+                    // Mettre à jour l'étape
+                    goToStep(3);
+                    
+                    // Charger les options de qualité
+                    loadQualityOptions(platformId, service.id);
+                });
+                
+                servicesGrid.appendChild(serviceCard);
+            });
+        }
+
+        // Charger les options de qualité
+        function loadQualityOptions(platformId, serviceId) {
+            const qualityOptions = document.getElementById('qualityOptions');
+            qualityOptions.innerHTML = '';
+            
+            const platform = servicesData[platformId];
+            const service = platform.services.find(s => s.id === serviceId);
+            
+            // Mettre à jour le prix pour 1000 unités
+            const pricePer1000 = document.getElementById('pricePer1000');
+            if (service.unit === 10) {
+                pricePer1000.textContent = `${service.qualities[0].price.toLocaleString()} XAF pour 10 unités`;
+            } else {
+                pricePer1000.textContent = `${service.qualities[0].price.toLocaleString()} XAF pour 1000 unités`;
+            }
+            
+            // Mettre à jour la quantité par défaut
+            const orderQuantity = document.getElementById('orderQuantity');
+            orderQuantity.value = service.unit;
+            currentOrder.quantity = service.unit;
+            
+            // Créer les options de qualité
+            service.qualities.forEach((quality, index) => {
+                const qualityOption = document.createElement('div');
+                qualityOption.className = `quality-option ${index === 0 ? 'selected' : ''}`;
+                qualityOption.setAttribute('data-quality', quality.id);
+                
+                qualityOption.innerHTML = `
+                    <h4>${quality.name}</h4>
+                    <div class="quality-price">${quality.price.toLocaleString()} XAF</div>
+                    <div class="quality-time">${quality.perUnit}</div>
+                    <div class="quality-time">${quality.time}</div>
+                `;
+                
+                qualityOption.addEventListener('click', function() {
+                    // Retirer la classe selected de toutes les options
+                    qualityOptions.querySelectorAll('.quality-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Ajouter la classe selected à l'option cliquée
+                    this.classList.add('selected');
+                    
+                    // Mettre à jour la commande
+                    currentOrder.quality = quality.id;
+                    currentOrder.qualityName = quality.name;
+                    currentOrder.unitPrice = quality.price;
+                    currentOrder.time = quality.time;
+                    
+                    // Mettre à jour le résumé
+                    updateOrderSummary();
+                });
+                
+                qualityOptions.appendChild(qualityOption);
+            });
+            
+            // Sélectionner la première qualité par défaut
+            if (service.qualities.length > 0) {
+                currentOrder.quality = service.qualities[0].id;
+                currentOrder.qualityName = service.qualities[0].name;
+                currentOrder.unitPrice = service.qualities[0].price;
+                currentOrder.time = service.qualities[0].time;
+            }
+            
+            // Mettre à jour le résumé
+            updateOrderSummary();
+        }
+
+        // Mettre à jour le résumé de la commande
+        function updateOrderSummary() {
+            if (currentOrder.service && currentOrder.quality) {
+                const platform = servicesData[currentOrder.platform];
+                const service = platform.services.find(s => s.id === currentOrder.service);
+                const quantity = parseInt(document.getElementById('orderQuantity').value) || 0;
+                
+                // Calculer le prix total
+                let totalPrice = 0;
+                if (service.unit === 10) {
+                    totalPrice = (quantity / 10) * currentOrder.unitPrice;
+                } else {
+                    totalPrice = (quantity / 1000) * currentOrder.unitPrice;
+                }
+                
+                currentOrder.totalPrice = totalPrice;
+                currentOrder.quantity = quantity;
+                
+                // Mettre à jour le résumé
+                document.getElementById('summaryService').textContent = service.name;
+                document.getElementById('summaryQuality').textContent = currentOrder.qualityName;
+                document.getElementById('summaryQuantity').textContent = quantity;
+                document.getElementById('summaryUnitPrice').textContent = `${currentOrder.unitPrice.toLocaleString()} XAF`;
+                document.getElementById('summaryTotalPrice').textContent = `${totalPrice.toLocaleString()} XAF`;
+                document.getElementById('summaryTime').textContent = currentOrder.time;
+            }
+        }
+
+        // Aller à une étape spécifique
+        function goToStep(step) {
+            // Mettre à jour les étapes
+            document.querySelectorAll('.step').forEach(stepEl => {
+                const stepNum = parseInt(stepEl.getAttribute('data-step'));
+                stepEl.classList.remove('active', 'completed');
+                
+                if (stepNum < step) {
+                    stepEl.classList.add('completed');
+                } else if (stepNum === step) {
+                    stepEl.classList.add('active');
+                }
+            });
+            
+            // Cacher toutes les étapes
+            document.querySelectorAll('.form-step').forEach(stepEl => {
+                stepEl.style.display = 'none';
+            });
+            
+            // Afficher l'étape courante
+            document.getElementById(`step${step}`).style.display = 'block';
+            
+            currentStep = step;
+            
+            // Mettre à jour les boutons
+            if (step === 4) {
+                updateConfirmationStep();
+            }
+        }
+
+        // Mettre à jour l'étape de confirmation
+        function updateConfirmationStep() {
+            const platform = servicesData[currentOrder.platform];
+            const service = platform.services.find(s => s.id === currentOrder.service);
+            
+            document.getElementById('confirmService').textContent = service.name;
+            document.getElementById('confirmPlatform').textContent = platform.name;
+            document.getElementById('confirmQuality').textContent = currentOrder.qualityName;
+            document.getElementById('confirmQuantity').textContent = currentOrder.quantity;
+            document.getElementById('confirmLink').textContent = currentOrder.link;
+            document.getElementById('confirmTotalPrice').textContent = `${currentOrder.totalPrice.toLocaleString()} XAF`;
+            document.getElementById('confirmBalance').textContent = `${userData.balance.toLocaleString()} XAF`;
+            document.getElementById('confirmAfterBalance').textContent = `${(userData.balance - currentOrder.totalPrice).toLocaleString()} XAF`;
+        }
+
+        // Configurer les formulaires de commande
+        function setupOrderForms() {
+            // Boutons de navigation des étapes
+            document.getElementById('nextStepBtn').addEventListener('click', function() {
+                if (currentStep === 3) {
+                    // Récupérer le lien
+                    const link = document.getElementById('orderLink').value;
+                    if (!link) {
+                        showError('Veuillez entrer un lien valide');
+                        return;
+                    }
+                    
+                    currentOrder.link = link;
+                    
+                    // Aller à l'étape 4
+                    goToStep(4);
+                }
+            });
+            
+            document.getElementById('prevStepBtn').addEventListener('click', function() {
+                if (currentStep === 3) {
+                    goToStep(2);
+                }
+            });
+            
+            document.getElementById('prevStep2Btn').addEventListener('click', function() {
+                if (currentStep === 4) {
+                    goToStep(3);
+                }
+            });
+            
+            // Gestion de la quantité
+            document.getElementById('orderMinus').addEventListener('click', function() {
+                const quantityInput = document.getElementById('orderQuantity');
+                let quantity = parseInt(quantityInput.value) || 100;
+                if (quantity > 1) {
+                    quantityInput.value = quantity - 1;
+                    updateOrderSummary();
+                }
+            });
+            
+            document.getElementById('orderPlus').addEventListener('click', function() {
+                const quantityInput = document.getElementById('orderQuantity');
+                let quantity = parseInt(quantityInput.value) || 100;
+                quantityInput.value = quantity + 1;
+                updateOrderSummary();
+            });
+            
+            document.getElementById('orderQuantity').addEventListener('input', updateOrderSummary);
+            
+            // Bouton de confirmation de commande
+            document.getElementById('confirmOrderBtn').addEventListener('click', async function() {
+                // Vérifier le solde
+                if (userData.balance < currentOrder.totalPrice) {
+                    const paymentAlert = document.getElementById('paymentAlert');
+                    const paymentMessage = document.getElementById('paymentMessage');
+                    paymentAlert.className = 'alert alert-error';
+                    paymentAlert.style.display = 'flex';
+                    paymentMessage.textContent = `Solde insuffisant. Vous avez ${userData.balance.toLocaleString()} XAF, besoin de ${currentOrder.totalPrice.toLocaleString()} XAF`;
+                    return;
+                }
+                
+                try {
+                    mainLoader.style.display = 'block';
+                    
+                    // Récupérer les données de la plateforme et du service
+                    const platform = servicesData[currentOrder.platform];
+                    const service = platform.services.find(s => s.id === currentOrder.service);
+                    const quality = service.qualities.find(q => q.id === currentOrder.quality);
+                    
+                    // Créer la commande
+                    const orderData = {
+                        userId: currentUser.uid,
+                        platform: currentOrder.platform,
+                        platformName: platform.name,
+                        service: currentOrder.service,
+                        serviceName: service.name,
+                        quality: currentOrder.quality,
+                        qualityName: quality.name,
+                        quantity: currentOrder.quantity,
+                        unitPrice: quality.price,
+                        totalPrice: currentOrder.totalPrice,
+                        link: currentOrder.link,
+                        status: 'pending',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        estimatedTime: quality.time
+                    };
+                    
+                    // Ajouter la commande à Firestore
+                    await db.collection('orders').add(orderData);
+                    
+                    // Mettre à jour le solde de l'utilisateur
+                    const newBalance = userData.balance - currentOrder.totalPrice;
+                    await db.collection('users').doc(currentUser.uid).update({
+                        balance: newBalance,
+                        orders: firebase.firestore.FieldValue.increment(1),
+                        pendingOrders: firebase.firestore.FieldValue.increment(1)
+                    });
+                    
+                    // Mettre à jour les données locales
+                    userData.balance = newBalance;
+                    userData.orders = (userData.orders || 0) + 1;
+                    userData.pendingOrders = (userData.pendingOrders || 0) + 1;
+                    
+                    // Mettre à jour l'interface
+                    updateUserInterface();
+                    
+                    // Afficher le message de succès
+                    showSuccess(`Commande passée avec succès! ${currentOrder.quantity} ${service.name} pour ${currentOrder.totalPrice.toLocaleString()} XAF`);
+                    
+                    // Réinitialiser le formulaire
+                    currentOrder = {
+                        platform: null,
+                        service: null,
+                        quality: null,
+                        quantity: 100,
+                        unitPrice: 0,
+                        totalPrice: 0,
+                        time: "",
+                        link: ""
+                    };
+                    
+                    // Revenir au tableau de bord
+                    document.querySelector('.sidebar-menu a[data-section="dashboard"]').click();
+                    
+                } catch (error) {
+                    console.error("Erreur lors de la commande:", error);
+                    showError("Erreur lors du traitement de la commande");
+                } finally {
+                    mainLoader.style.display = 'none';
+                }
+            });
+        }
+
+        // Charger tous les services
+        function loadAllServices() {
+            const allServicesDiv = document.getElementById('allServices');
+            allServicesDiv.innerHTML = '';
+            
+            Object.keys(servicesData).forEach(platformId => {
+                const platform = servicesData[platformId];
+                
+                const platformSection = document.createElement('div');
+                platformSection.className = 'service-card';
+                platformSection.style.marginBottom = '30px';
+                platformSection.style.borderTopColor = platform.color;
+                
+                let servicesHTML = `
+                    <div class="service-header">
+                        <div class="service-icon" style="background-color: ${platform.color}20; color: ${platform.color};">
+                            <i class="${platform.icon}"></i>
+                        </div>
+                        <div class="service-name" style="font-size: 1.5rem;">${platform.name}</div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                `;
+                
+                platform.services.forEach(service => {
+                    servicesHTML += `
+                        <div style="margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+                            <h4 style="margin-bottom: 15px; color: var(--dark);">${service.name}</h4>
+                    `;
+                    
+                    service.qualities.forEach(quality => {
+                        servicesHTML += `
+                            <div class="service-option">
+                                <div class="option-header">
+                                    <div class="option-name">${quality.name}</div>
+                                    <div class="option-price">${quality.price.toLocaleString()} XAF</div>
+                                </div>
+                                <div class="option-time">${quality.perUnit} • ${quality.time}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    servicesHTML += `</div>`;
+                });
+                
+                servicesHTML += `</div>`;
+                platformSection.innerHTML = servicesHTML;
+                allServicesDiv.appendChild(platformSection);
+            });
+        }
+
+        // Charger les commandes de l'utilisateur
+        async function loadUserOrders() {
+            const ordersTableBody = document.getElementById('ordersTableBody');
+            ordersTableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 40px;">
+                        <div class="loader" id="ordersLoader">
+                            <div class="spinner"></div>
+                        </div>
+                        <p style="color: var(--gray);">Chargement de vos commandes...</p>
+                    </td>
+                </tr>
+            `;
+            
+            try {
+                const ordersSnapshot = await db.collection('orders')
+                    .where('userId', '==', currentUser.uid)
+                    .orderBy('createdAt', 'desc')
+                    .limit(10)
+                    .get();
+                
+                if (ordersSnapshot.empty) {
+                    ordersTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: var(--gray);">
+                                <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                                Aucune commande pour le moment
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                ordersTableBody.innerHTML = '';
+                
+                ordersSnapshot.forEach((doc, index) => {
+                    const order = doc.data();
+                    const date = order.createdAt ? order.createdAt.toDate() : new Date();
+                    const formattedDate = date.toLocaleDateString('fr-FR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
+                    
+                    const statusClass = order.status === 'completed' ? 'completed' : 
+                                      order.status === 'processing' ? 'processing' : 'pending';
+                    
+                    const statusText = order.status === 'completed' ? 'Terminé' :
+                                     order.status === 'processing' ? 'En cours' : 'En attente';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${doc.id.substring(0, 8)}...</td>
+                        <td>${formattedDate}</td>
+                        <td>${order.serviceName}</td>
+                        <td>${order.quantity.toLocaleString()}</td>
+                        <td>${order.totalPrice.toLocaleString()} XAF</td>
+                        <td><span class="status ${statusClass}">${statusText}</span></td>
+                    `;
+                    
+                    ordersTableBody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error("Erreur lors du chargement des commandes:", error);
+                ordersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--error);">
+                            Erreur lors du chargement des commandes
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Déconnexion
+        logoutBtn.addEventListener('click', async function() {
+            try {
+                await auth.signOut();
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error("Erreur lors de la déconnexion:", error);
+                showError("Erreur lors de la déconnexion");
+            }
+        });
+
+        // Afficher un message de succès
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successAlert.className = 'alert alert-success';
+            successAlert.style.display = 'flex';
+            
+            // Masquer après 5 secondes
+            setTimeout(() => {
+                successAlert.style.display = 'none';
+            }, 5000);
+        }
+
+        // Afficher un message d'erreur
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorAlert.className = 'alert alert-error';
+            errorAlert.style.display = 'flex';
+            
+            // Masquer après 5 secondes
+            setTimeout(() => {
+                errorAlert.style.display = 'none';
+            }, 5000);
+        }
+
+        // Gestion du scroll pour le header
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>
