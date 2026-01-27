@@ -419,32 +419,6 @@
             margin-right: 8px;
         }
 
-        /* Styles pour les nouveaux champs de parrainage */
-        .referral-success {
-            color: var(--success);
-            font-size: 0.9rem;
-            margin-top: 5px;
-            display: none;
-        }
-        
-        .referral-error {
-            color: var(--error);
-            font-size: 0.9rem;
-            margin-top: 5px;
-            display: none;
-        }
-        
-        .referrer-group {
-            background-color: rgba(54, 211, 153, 0.1);
-            border: 1px solid rgba(54, 211, 153, 0.3);
-            border-radius: 10px;
-            padding: 12px;
-        }
-        
-        .referrer-group .form-label {
-            color: var(--success);
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
             body {
@@ -627,32 +601,10 @@
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="referral">Code de parrainage (optionnel)</label>
-                        <input type="text" id="referral" class="form-input" placeholder="Entrez le code de votre parrain">
-                        <div class="referral-success" id="referralSuccess"></div>
-                        <div class="referral-error" id="referralError"></div>
-                    </div>
-                    
-                    <div class="form-group" id="referrerNameGroup" style="display: none;">
-                        <label class="form-label" for="referrerName">Parrainé par</label>
-                        <input type="text" id="referrerName" class="form-input" readonly placeholder="Nom du parrain" style="background-color: rgba(54, 211, 153, 0.1); border-color: var(--success);">
-                    </div>
-                    
-                    <div class="form-group">
                         <label class="form-label" for="password">Mot de passe</label>
                         <div class="password-container">
                             <input type="password" id="password" class="form-input" placeholder="Minimum 6 caractères" required minlength="6">
                             <button type="button" class="toggle-password" id="togglePassword">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="confirmPassword">Confirmer le mot de passe</label>
-                        <div class="password-container">
-                            <input type="password" id="confirmPassword" class="form-input" placeholder="Répétez votre mot de passe" required minlength="6">
-                            <button type="button" class="toggle-password" id="toggleConfirmPassword">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -683,14 +635,16 @@
     </div>
 
     <script>
-        // Configuration Firebase
+        // Nouvelle Configuration Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyADHHilol6wT52bjGihwj5qx2O1awQdfTk",
-            authDomain: "yokason-4582d.firebaseapp.com",
-            projectId: "yokason-4582d",
-            storageBucket: "yokason-4582d.firebasestorage.app",
-            messagingSenderId: "953463074169",
-            appId: "1:953463074169:web:8840544c6fa73559e353a8"
+            apiKey: "AIzaSyBvVXfiFmnIVEZzaugsxt43ov0YU7quIhY",
+            authDomain: "monsiteweb-beaee.firebaseapp.com",
+            databaseURL: "https://monsiteweb-beaee-default-rtdb.firebaseio.com",
+            projectId: "monsiteweb-beaee",
+            storageBucket: "monsiteweb-beaee.firebasestorage.app",
+            messagingSenderId: "847850292961",
+            appId: "1:847850292961:web:6527ea0d8d2848aec119a0",
+            measurementId: "G-3JGDX6G06N"
         };
 
         // Initialiser Firebase
@@ -715,17 +669,10 @@
         const loader = document.getElementById('loader');
         const submitButton = document.getElementById('submitButton');
         const togglePassword = document.getElementById('togglePassword');
-        const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
         const passwordInput = document.getElementById('password');
-        const confirmPasswordInput = document.getElementById('confirmPassword');
         const mobileMenuBtn = document.getElementById('mobileMenu');
         const navMenu = document.getElementById('navMenu');
         const submitSpinner = document.getElementById('submitSpinner');
-        const referralInput = document.getElementById('referral');
-        const referralSuccess = document.getElementById('referralSuccess');
-        const referralError = document.getElementById('referralError');
-        const referrerNameGroup = document.getElementById('referrerNameGroup');
-        const referrerNameInput = document.getElementById('referrerName');
 
         // Flag pour éviter les appels multiples
         let isRegistering = false;
@@ -741,12 +688,6 @@
         togglePassword.addEventListener('click', function() {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
-        });
-
-        toggleConfirmPassword.addEventListener('click', function() {
-            const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            confirmPasswordInput.setAttribute('type', type);
             this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
         });
 
@@ -768,77 +709,7 @@
             successAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
-        // ✅ AUTO-REMPLISSAGE DU CODE DE PARRAINAGE DEPUIS L'URL
-        async function checkAndFillReferralCode() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const refCodeFromUrl = urlParams.get('ref');
-            
-            if (refCodeFromUrl) {
-                // Auto-remplir le code de parrainage
-                referralInput.value = refCodeFromUrl.toUpperCase();
-                // Rendre le champ non modifiable
-                referralInput.readOnly = true;
-                referralInput.style.background = 'rgba(54, 211, 153, 0.1)';
-                referralInput.style.borderColor = 'var(--success)';
-                referralInput.style.color = 'var(--success)';
-                referralInput.style.fontWeight = '600';
-                
-                console.log('🎁 Code de parrainage détecté depuis URL:', refCodeFromUrl);
-                
-                // Rechercher et afficher le nom du parrain
-                await verifyReferralCode(refCodeFromUrl);
-            }
-        }
-
-        // Vérification du code de parrainage
-        async function verifyReferralCode(code) {
-            if (!code.trim()) {
-                referralSuccess.style.display = 'none';
-                referralError.style.display = 'none';
-                referrerNameGroup.style.display = 'none';
-                return;
-            }
-            
-            try {
-                const querySnapshot = await db.collection('users')
-                    .where('referralCode', '==', code.toUpperCase())
-                    .limit(1)
-                    .get();
-                
-                if (!querySnapshot.empty) {
-                    const referrerData = querySnapshot.docs[0].data();
-                    const referrerName = referrerData.fullName || referrerData.username || 'Utilisateur inconnu';
-                    
-                    // Afficher le champ "Parrainé par"
-                    referrerNameGroup.style.display = 'block';
-                    referrerNameInput.value = `✅ ${referrerName}`;
-                    
-                    referralSuccess.textContent = `✅ Code valide ! Vous êtes parrainé par ${referrerName}`;
-                    referralSuccess.style.display = 'block';
-                    referralError.style.display = 'none';
-                    
-                    console.log('✅ Parrain trouvé:', referrerName);
-                } else {
-                    referrerNameGroup.style.display = 'none';
-                    referralError.textContent = '⚠️ Code de parrainage invalide';
-                    referralError.style.display = 'block';
-                    referralSuccess.style.display = 'none';
-                    console.warn('⚠️ Code de parrainage invalide:', code);
-                }
-            } catch (error) {
-                console.error("Erreur lors de la recherche du parrain:", error);
-                referralError.textContent = 'Erreur lors de la vérification du code';
-                referralError.style.display = 'block';
-                referralSuccess.style.display = 'none';
-            }
-        }
-
-        // Écouteur pour la vérification du code de parrainage
-        referralInput.addEventListener('blur', async function() {
-            await verifyReferralCode(this.value.trim());
-        });
-
-        // Gérer l'inscription (Nouvelle logique comme Social Boost Horizon)
+        // Gérer l'inscription
         registerForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -855,8 +726,6 @@
             const phone = document.getElementById('phone').value.trim();
             const country = document.getElementById('country').value;
             const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const referral = document.getElementById('referral').value.trim();
             const terms = document.getElementById('terms').checked;
             
             // Validation des champs
@@ -890,12 +759,6 @@
                 return;
             }
             
-            if (password !== confirmPassword) {
-                showError('Les mots de passe ne correspondent pas.');
-                isRegistering = false;
-                return;
-            }
-            
             if (!terms) {
                 showError('Vous devez accepter les conditions d\'utilisation.');
                 isRegistering = false;
@@ -913,13 +776,7 @@
                 const userId = user.uid;
                 console.log('✅ Compte Firebase créé:', userId);
                 
-                // 2. Générer un code de parrainage pour le nouvel utilisateur
-                const generatedCode = Math.random().toString(36).substring(2,10).toUpperCase();
-                
-                // 3. Déterminer le code de parrainage utilisé
-                const referralCodeUsed = referral || new URLSearchParams(location.search).get('ref') || null;
-                
-                // 4. Créer l'objet utilisateur pour Firestore
+                // 2. Créer l'objet utilisateur pour Firestore
                 const userData = {
                     userId,
                     fullName,
@@ -927,58 +784,23 @@
                     email,
                     phone: phone || '',
                     country,
-                    referralCode: generatedCode,
-                    referredBy: referralCodeUsed ? referralCodeUsed.toUpperCase() : null,
                     balance: 0,
-                    referralBalance: 0,
-                    discountUsesLeft: 10,
-                    referralsCount: 0,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     provider: 'email',
-                    welcomeModalShown: false,
-                    isFirstAccess: true,
-                    openedChests: [],
                     accountType: 'standard',
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
                     status: 'active'
                 };
                 
-                // 5. Vérifier si un code de parrainage a été fourni
-                if (referralCodeUsed) {
-                    console.log('Inscription avec parrainage:', referralCodeUsed);
-                    
-                    try {
-                        // Vérifier que le code de parrainage existe
-                        const referralQuery = await db.collection('users')
-                            .where('referralCode', '==', referralCodeUsed.toUpperCase())
-                            .limit(1)
-                            .get();
-                        
-                        if (!referralQuery.empty) {
-                            // Mettre à jour le compte du parrain
-                            const referrerDoc = referralQuery.docs[0];
-                            const referrerData = referrerDoc.data();
-                            
-                            await db.collection('users').doc(referrerDoc.id).update({
-                                referralsCount: (referrerData.referralsCount || 0) + 1
-                            });
-                            
-                            console.log('✅ Compte du parrain mis à jour');
-                        }
-                    } catch (referralError) {
-                        console.error("Erreur lors de la mise à jour du parrain:", referralError);
-                    }
-                }
-                
-                // 6. Créer le document utilisateur dans Firestore
+                // 3. Créer le document utilisateur dans Firestore
                 console.log('Création du document Firestore...');
                 await db.collection('users').doc(userId).set(userData);
                 console.log('✅ Document Firestore créé avec succès');
                 
-                // 7. Afficher le message de succès
+                // 4. Afficher le message de succès
                 showSuccess('✅ Inscription réussie ! Redirection vers votre tableau de bord...');
                 
-                // 8. Rediriger vers le tableau de bord après 1.5s
+                // 5. Rediriger vers le tableau de bord après 1.5s
                 setTimeout(() => {
                     console.log('📍 Redirection vers dashboard...');
                     window.location.href = 'dashboard.html';
@@ -1019,11 +841,6 @@
                 // Utilisateur déjà connecté, rediriger vers le dashboard
                 window.location.href = 'dashboard.html';
             }
-        });
-
-        // Initialiser au chargement de la page
-        document.addEventListener('DOMContentLoaded', () => {
-            checkAndFillReferralCode();
         });
     </script>
 </body>
