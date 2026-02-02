@@ -3,737 +3,505 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recharger - Boosteph</title>
+    <title>Recharger mon compte - Boosteph</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
     <style>
+        :root {
+            --primary: #6c63ff;
+            --primary-dark: #554fd8;
+            --secondary: #ff6584;
+            --dark: #1a1a2e;
+            --dark-light: #2a2a3e;
+            --light: #f8f9fa;
+            --gray: #8a8a9e;
+            --success: #36d399;
+            --warning: #fbbf24;
+            --error: #ff4757;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 50%, #fdf4ff 100%);
-            padding-bottom: 80px;
-        }
-        
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #e5e1f5;
-            padding: 12px 16px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .header-content {
-            max-width: 600px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .back-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            color: #6b7280;
-            text-decoration: none;
-        }
-        
-        .back-btn:hover {
-            background: #f3f4f6;
-        }
-        
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .logo {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
-        }
-        
-        .brand-name {
-            font-weight: 700;
-            font-size: 20px;
-            background: linear-gradient(135deg, #7c3aed, #9333ea);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .balance-badge {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        .container {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 24px 16px;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e5e1f5;
-        }
-        
-        .card-title {
-            font-size: 24px;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 24px;
-            color: #1f2937;
-        }
-        
-        .current-balance {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            border-radius: 16px;
             padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: var(--shadow);
+        }
+
+        .header {
             text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--gray);
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            margin-bottom: 24px;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
         }
-        
-        .current-balance-label {
-            font-size: 14px;
+
+        .balance-card h3 {
+            font-size: 0.9rem;
             opacity: 0.9;
+            margin-bottom: 5px;
         }
-        
-        .current-balance-amount {
-            font-size: 32px;
+
+        .balance-card .amount {
+            font-size: 2.5rem;
             font-weight: 700;
         }
-        
-        .section {
-            margin-bottom: 24px;
+
+        .form-group {
+            margin-bottom: 20px;
         }
-        
-        .section-label {
-            font-weight: 600;
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(108, 99, 255, 0.1);
+            border-radius: 10px;
             font-size: 16px;
-            color: #374151;
-            margin-bottom: 12px;
+            font-family: 'Poppins', sans-serif;
+            transition: var(--transition);
         }
-        
-        .preset-grid {
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+        }
+
+        .amount-options {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 10px;
+            margin-bottom: 20px;
         }
-        
-        .preset-btn {
-            padding: 12px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            background: white;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .preset-btn:hover {
-            border-color: #a78bfa;
-        }
-        
-        .preset-btn.active {
-            border-color: #8b5cf6;
-            background: #f5f3ff;
-            color: #7c3aed;
-        }
-        
-        .amount-input {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 24px;
-            font-weight: 700;
+
+        .amount-option {
+            padding: 15px;
+            border: 2px solid rgba(108, 99, 255, 0.1);
+            border-radius: 10px;
             text-align: center;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        
-        .amount-input:focus {
-            border-color: #8b5cf6;
-        }
-        
-        .phone-input-container {
-            position: relative;
-        }
-        
-        .phone-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9ca3af;
-        }
-        
-        .phone-input {
-            width: 100%;
-            padding: 14px 14px 14px 48px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        
-        .phone-input:focus {
-            border-color: #8b5cf6;
-        }
-        
-        .phone-hint {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 8px;
-        }
-        
-        .summary {
-            background: #f9fafb;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 24px;
-        }
-        
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-        
-        .summary-row:last-child {
-            margin-bottom: 0;
-            padding-top: 12px;
-            border-top: 1px solid #e5e7eb;
-        }
-        
-        .summary-label {
-            color: #6b7280;
-        }
-        
-        .summary-value {
+            cursor: pointer;
+            transition: var(--transition);
             font-weight: 600;
         }
-        
-        .summary-value.free {
-            color: #10b981;
+
+        .amount-option:hover, .amount-option.selected {
+            border-color: var(--primary);
+            background: rgba(108, 99, 255, 0.05);
+            color: var(--primary);
         }
-        
-        .summary-value.total {
-            color: #7c3aed;
-            font-weight: 700;
-        }
-        
-        .submit-btn {
+
+        .btn {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            color: white;
+            padding: 15px;
             border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 700;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--light);
+            color: var(--dark);
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background: rgba(54, 211, 153, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: opacity 0.2s;
+            gap: 10px;
         }
-        
-        .submit-btn:hover {
-            opacity: 0.9;
+
+        .alert-error {
+            background: rgba(255, 71, 87, 0.1);
+            color: var(--error);
+            border: 1px solid var(--error);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        
-        .submit-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
         }
-        
+
         .spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top-color: white;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(108, 99, 255, 0.2);
+            border-top-color: var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin: 0 auto;
         }
-        
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
-        .security-note {
+
+        .payment-methods {
             display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .payment-method {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid rgba(108, 99, 255, 0.1);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .payment-method:hover, .payment-method.selected {
+            border-color: var(--primary);
+            background: rgba(108, 99, 255, 0.05);
+        }
+
+        .payment-method img {
+            height: 30px;
+            margin-bottom: 5px;
+        }
+
+        .payment-method span {
+            display: block;
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .back-link {
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 8px;
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 16px;
-        }
-        
-        .security-note svg {
-            color: #10b981;
-        }
-        
-        .message {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            font-size: 14px;
-            display: none;
-        }
-        
-        .message.success {
-            background: #d1fae5;
-            color: #065f46;
-            display: block;
-        }
-        
-        .message.error {
-            background: #fee2e2;
-            color: #991b1b;
-            display: block;
-        }
-        
-        .nav-bottom {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            border-top: 1px solid #e5e7eb;
-            padding: 8px 16px;
-            display: flex;
-            justify-content: space-around;
-            z-index: 100;
-        }
-        
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            color: #6b7280;
+            color: var(--gray);
             text-decoration: none;
-            font-size: 11px;
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: all 0.2s;
+            margin-bottom: 20px;
+            transition: var(--transition);
         }
-        
-        .nav-item.active {
-            color: #7c3aed;
-        }
-        
-        .nav-item:hover {
-            background: #f5f3ff;
-        }
-        
-        .transactions-section {
-            margin-top: 24px;
-        }
-        
-        .transaction-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .transaction-item:last-child {
-            border-bottom: none;
-        }
-        
-        .transaction-info {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .transaction-type {
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        .transaction-date {
-            font-size: 12px;
-            color: #6b7280;
-        }
-        
-        .transaction-amount {
-            font-weight: 700;
-            color: #10b981;
-        }
-        
-        .transaction-status {
-            font-size: 11px;
-            padding: 4px 8px;
-            border-radius: 6px;
-        }
-        
-        .transaction-status.pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        
-        .transaction-status.completed {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        
-        .transaction-status.failed {
-            background: #fee2e2;
-            color: #991b1b;
+
+        .back-link:hover {
+            color: var(--primary);
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-content">
-            <div class="header-left">
-                <a href="dashboard.html" class="back-btn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                    </svg>
-                </a>
-                <div class="logo-container">
-                    <div class="logo">B</div>
-                    <span class="brand-name">BOOSTEPH</span>
-                </div>
-            </div>
-            <div class="balance-badge">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
-                    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
-                    <path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z"/>
-                </svg>
-                <span id="headerBalance">0 XAF</span>
-            </div>
-        </div>
-    </header>
-
-    <main class="container">
-        <div class="card">
-            <h1 class="card-title">Recharger mon compte</h1>
-            
-            <div id="messageBox" class="message"></div>
-            
-            <div class="current-balance">
-                <p class="current-balance-label">Solde actuel</p>
-                <p class="current-balance-amount" id="currentBalance">0 XAF</p>
-            </div>
-            
-            <div class="section">
-                <p class="section-label">Montant a recharger</p>
-                <div class="preset-grid">
-                    <button class="preset-btn" onclick="selectPreset(1000, this)">1 000</button>
-                    <button class="preset-btn" onclick="selectPreset(2500, this)">2 500</button>
-                    <button class="preset-btn active" onclick="selectPreset(5000, this)">5 000</button>
-                    <button class="preset-btn" onclick="selectPreset(10000, this)">10 000</button>
-                    <button class="preset-btn" onclick="selectPreset(25000, this)">25 000</button>
-                    <button class="preset-btn" onclick="selectPreset(50000, this)">50 000</button>
-                </div>
-                <input type="number" class="amount-input" id="amountInput" value="5000" min="100" placeholder="Montant">
-            </div>
-            
-            <div class="section">
-                <p class="section-label">Numero Mobile Money</p>
-                <div class="phone-input-container">
-                    <svg class="phone-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                    </svg>
-                    <input type="tel" class="phone-input" id="phoneInput" placeholder="6XX XXX XXX">
-                </div>
-                <p class="phone-hint">Orange Money ou MTN Mobile Money</p>
-            </div>
-            
-            <div class="summary">
-                <div class="summary-row">
-                    <span class="summary-label">Montant:</span>
-                    <span class="summary-value" id="summaryAmount">5 000 XAF</span>
-                </div>
-                <div class="summary-row">
-                    <span class="summary-label">Frais:</span>
-                    <span class="summary-value free">Gratuit</span>
-                </div>
-                <div class="summary-row">
-                    <span class="summary-label" style="font-weight: 500;">Nouveau solde:</span>
-                    <span class="summary-value total" id="newBalance">5 000 XAF</span>
-                </div>
-            </div>
-            
-            <button class="submit-btn" id="submitBtn" onclick="initiatePayment()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                    <line x1="1" y1="10" x2="23" y2="10"/>
-                </svg>
-                Recharger <span id="btnAmount">5 000</span> XAF
-            </button>
-            
-            <div class="security-note">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                    <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
-                Paiement securise via Fapshi
-            </div>
-        </div>
+    <div class="container">
+        <a href="dashboard.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+        </a>
         
-        <div class="card transactions-section">
-            <h2 class="card-title" style="font-size: 18px; margin-bottom: 16px;">Dernieres transactions</h2>
-            <div id="transactionsList">
-                <p style="text-align: center; color: #6b7280; padding: 20px;">Chargement...</p>
-            </div>
+        <div class="header">
+            <h1><i class="fas fa-wallet"></i> Recharger</h1>
+            <p>Rechargez votre compte Boosteph</p>
         </div>
-    </main>
-    
-    <nav class="nav-bottom">
-        <a href="dashboard.html" class="nav-item">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
-            Accueil
-        </a>
-        <a href="orders.html" class="nav-item">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
-            </svg>
-            Commandes
-        </a>
-        <a href="recharge.html" class="nav-item active">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                <line x1="1" y1="10" x2="23" y2="10"/>
-            </svg>
-            Recharger
-        </a>
-    </nav>
+
+        <div class="balance-card">
+            <h3>Solde actuel</h3>
+            <div class="amount" id="currentBalance">0 XAF</div>
+        </div>
+
+        <div class="alert" id="successAlert">
+            <i class="fas fa-check-circle"></i>
+            <span id="successMessage"></span>
+        </div>
+
+        <div class="alert" id="errorAlert">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="errorMessage"></span>
+        </div>
+
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: var(--gray);">Traitement en cours...</p>
+        </div>
+
+        <form id="rechargeForm">
+            <div class="form-group">
+                <label>Montant rapide</label>
+                <div class="amount-options">
+                    <div class="amount-option" data-amount="1000">1 000 XAF</div>
+                    <div class="amount-option" data-amount="2000">2 000 XAF</div>
+                    <div class="amount-option" data-amount="5000">5 000 XAF</div>
+                    <div class="amount-option" data-amount="10000">10 000 XAF</div>
+                    <div class="amount-option" data-amount="20000">20 000 XAF</div>
+                    <div class="amount-option" data-amount="50000">50 000 XAF</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="customAmount">Ou entrez un montant personnalisé (XAF)</label>
+                <input type="number" id="customAmount" placeholder="Ex: 5000" min="500">
+            </div>
+
+            <div class="form-group">
+                <label for="phoneNumber">Numéro de téléphone Mobile Money</label>
+                <input type="tel" id="phoneNumber" placeholder="6XXXXXXXX" required>
+            </div>
+
+            <div class="form-group">
+                <label>Mode de paiement</label>
+                <div class="payment-methods">
+                    <div class="payment-method selected" data-method="momo">
+                        <i class="fas fa-mobile-alt" style="font-size: 24px; color: #FFCC00;"></i>
+                        <span>MTN MoMo</span>
+                    </div>
+                    <div class="payment-method" data-method="om">
+                        <i class="fas fa-mobile-alt" style="font-size: 24px; color: #FF6600;"></i>
+                        <span>Orange Money</span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+                <i class="fas fa-credit-card"></i> Payer maintenant
+            </button>
+        </form>
+
+        <button class="btn btn-secondary" onclick="window.location.href='dashboard.html'">
+            <i class="fas fa-home"></i> Retour au tableau de bord
+        </button>
+    </div>
 
     <script>
-        // Configuration - URL du serveur Replit
-        const API_URL = "https://visibility-booster.replit.app";
-        
-        let currentBalance = 0;
-        let selectedAmount = 5000;
-        let user = null;
-        
-        // Verifier si l'utilisateur est connecte
-        function checkAuth() {
-            const userData = localStorage.getItem('boosteph_user');
-            if (!userData) {
-                window.location.href = 'login.html';
-                return null;
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBvVXfiFmnIVEZzaugsxt43ov0YU7quIhY",
+            authDomain: "monsiteweb-beaee.firebaseapp.com",
+            databaseURL: "https://monsiteweb-beaee-default-rtdb.firebaseio.com",
+            projectId: "monsiteweb-beaee",
+            storageBucket: "monsiteweb-beaee.firebasestorage.app",
+            messagingSenderId: "847850292961",
+            appId: "1:847850292961:web:6527ea0d8d2848aec119a0",
+            measurementId: "G-3JGDX6G06N"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // URL du serveur API Replit (MODIFIER AVEC VOTRE URL DEPLOYEE)
+        const API_BASE_URL = "https://boosteph.replit.app";
+
+        let currentUser = null;
+        let userData = null;
+        let selectedAmount = 0;
+
+        // Vérifier l'authentification
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserData();
+            } else {
+                window.location.href = 'connexion.html';
             }
-            return JSON.parse(userData);
-        }
-        
-        // Formater les nombres
-        function formatNumber(num) {
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-        }
-        
-        // Charger les donnees utilisateur
+        });
+
+        // Charger les données utilisateur
         async function loadUserData() {
             try {
-                const response = await fetch(`${API_URL}/api/user/${user.id}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    currentBalance = data.balance || 0;
-                    updateDisplay();
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                if (userDoc.exists) {
+                    userData = userDoc.data();
+                    document.getElementById('currentBalance').textContent = 
+                        `${(userData.balance || 0).toLocaleString()} XAF`;
                 }
             } catch (error) {
-                console.error('Erreur chargement utilisateur:', error);
+                console.error("Erreur:", error);
             }
         }
-        
-        // Charger les transactions
-        async function loadTransactions() {
-            try {
-                const response = await fetch(`${API_URL}/api/transactions/${user.id}`);
-                if (response.ok) {
-                    const transactions = await response.json();
-                    displayTransactions(transactions);
-                }
-            } catch (error) {
-                console.error('Erreur chargement transactions:', error);
-            }
-        }
-        
-        // Afficher les transactions
-        function displayTransactions(transactions) {
-            const container = document.getElementById('transactionsList');
-            
-            if (transactions.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 20px;">Aucune transaction</p>';
-                return;
-            }
-            
-            container.innerHTML = transactions.slice(0, 5).map(tx => `
-                <div class="transaction-item">
-                    <div class="transaction-info">
-                        <span class="transaction-type">${tx.type === 'deposit' ? 'Recharge' : 'Depot'}</span>
-                        <span class="transaction-date">${new Date(tx.createdAt).toLocaleDateString('fr-FR')}</span>
-                    </div>
-                    <div style="text-align: right;">
-                        <div class="transaction-amount">+${formatNumber(tx.amount)} XAF</div>
-                        <span class="transaction-status ${tx.status}">${tx.status === 'completed' ? 'Reussi' : tx.status === 'pending' ? 'En attente' : 'Echoue'}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        // Mettre a jour l'affichage
-        function updateDisplay() {
-            document.getElementById('headerBalance').textContent = formatNumber(currentBalance) + ' XAF';
-            document.getElementById('currentBalance').textContent = formatNumber(currentBalance) + ' XAF';
-            document.getElementById('summaryAmount').textContent = formatNumber(selectedAmount) + ' XAF';
-            document.getElementById('newBalance').textContent = formatNumber(currentBalance + selectedAmount) + ' XAF';
-            document.getElementById('btnAmount').textContent = formatNumber(selectedAmount);
-        }
-        
-        // Selectionner un montant preset
-        function selectPreset(amount, btn) {
-            selectedAmount = amount;
-            document.getElementById('amountInput').value = amount;
-            
-            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            updateDisplay();
-        }
-        
-        // Ecouter les changements de montant
-        document.getElementById('amountInput').addEventListener('input', function(e) {
-            selectedAmount = parseInt(e.target.value) || 0;
-            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
-            updateDisplay();
+
+        // Gestion des montants rapides
+        document.querySelectorAll('.amount-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.amount-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedAmount = parseInt(this.dataset.amount);
+                document.getElementById('customAmount').value = selectedAmount;
+            });
         });
-        
-        // Afficher un message
-        function showMessage(text, type) {
-            const box = document.getElementById('messageBox');
-            box.textContent = text;
-            box.className = 'message ' + type;
-            setTimeout(() => { box.className = 'message'; }, 5000);
-        }
-        
-        // Initier le paiement
-        async function initiatePayment() {
-            const phone = document.getElementById('phoneInput').value.replace(/\s/g, '');
+
+        // Gestion du montant personnalisé
+        document.getElementById('customAmount').addEventListener('input', function() {
+            selectedAmount = parseInt(this.value) || 0;
+            document.querySelectorAll('.amount-option').forEach(o => o.classList.remove('selected'));
+        });
+
+        // Gestion des méthodes de paiement
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', function() {
+                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // Soumission du formulaire
+        document.getElementById('rechargeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            if (selectedAmount < 100) {
-                showMessage('Le montant minimum est de 100 XAF', 'error');
+            const amount = selectedAmount || parseInt(document.getElementById('customAmount').value);
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            
+            if (!amount || amount < 500) {
+                showError('Veuillez entrer un montant minimum de 500 XAF');
                 return;
             }
             
-            if (!phone || phone.length < 9) {
-                showMessage('Numero de telephone invalide', 'error');
+            if (!phoneNumber || phoneNumber.length < 9) {
+                showError('Veuillez entrer un numéro de téléphone valide');
                 return;
             }
-            
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<div class="spinner"></div> Traitement...';
-            
+
             try {
-                const response = await fetch(`${API_URL}/api/payments/initiate`, {
+                showLoader(true);
+                hideAlerts();
+
+                // Appeler l'API Fapshi via le serveur Replit
+                const response = await fetch(`${API_BASE_URL}/api/payments/initiate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        userId: user.id,
-                        amount: selectedAmount,
-                        phoneNumber: phone
+                        amount: amount,
+                        phoneNumber: phoneNumber,
+                        userId: currentUser.uid,
+                        externalId: currentUser.uid
                     })
                 });
-                
+
                 const data = await response.json();
-                
-                if (data.success) {
-                    showMessage(data.message || 'Veuillez confirmer le paiement sur votre telephone', 'success');
+
+                if (data.success && data.transId) {
+                    // Enregistrer la transaction en attente dans Firebase
+                    await db.collection('transactions').add({
+                        userId: currentUser.uid,
+                        type: 'recharge',
+                        amount: amount,
+                        phoneNumber: phoneNumber,
+                        transId: data.transId,
+                        status: 'pending',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    showSuccess('Paiement initié! Veuillez confirmer sur votre téléphone. ' + 
+                               'Votre solde sera crédité automatiquement après confirmation.');
                     
+                    // Rediriger vers le lien de paiement si disponible
                     if (data.link) {
-                        window.open(data.link, '_blank');
+                        setTimeout(() => {
+                            window.open(data.link, '_blank');
+                        }, 2000);
                     }
-                    
-                    // Recharger les donnees apres un delai
-                    setTimeout(() => {
-                        loadUserData();
-                        loadTransactions();
-                    }, 5000);
                 } else {
-                    showMessage(data.error || 'Erreur lors du paiement', 'error');
+                    showError(data.error || 'Erreur lors de l\'initiation du paiement');
                 }
             } catch (error) {
-                console.error('Erreur paiement:', error);
-                showMessage('Erreur de connexion au serveur', 'error');
+                console.error("Erreur:", error);
+                showError('Erreur de connexion au serveur de paiement');
             } finally {
-                btn.disabled = false;
-                btn.innerHTML = `
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                        <line x1="1" y1="10" x2="23" y2="10"/>
-                    </svg>
-                    Recharger <span id="btnAmount">${formatNumber(selectedAmount)}</span> XAF
-                `;
+                showLoader(false);
             }
+        });
+
+        function showSuccess(message) {
+            const alert = document.getElementById('successAlert');
+            document.getElementById('successMessage').textContent = message;
+            alert.className = 'alert alert-success';
+            alert.style.display = 'flex';
         }
-        
-        // Initialisation
-        async function init() {
-            user = checkAuth();
-            if (!user) return;
-            
-            await Promise.all([
-                loadUserData(),
-                loadTransactions()
-            ]);
+
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            document.getElementById('errorMessage').textContent = message;
+            alert.className = 'alert alert-error';
+            alert.style.display = 'flex';
         }
-        
-        init();
+
+        function hideAlerts() {
+            document.getElementById('successAlert').style.display = 'none';
+            document.getElementById('errorAlert').style.display = 'none';
+        }
+
+        function showLoader(show) {
+            document.getElementById('loader').style.display = show ? 'block' : 'none';
+            document.getElementById('submitBtn').disabled = show;
+        }
     </script>
 </body>
 </html>
