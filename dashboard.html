@@ -2590,11 +2590,11 @@
                         row.style.animation = 'fadeInUp 0.5s ease';
                         row.style.animationFillMode = 'both';
                         
-                        const orderId = order.id || order._id || 'N/A';
-                        const shortId = orderId.length > 8 ? orderId.substring(0, 8) + '...' : orderId;
+                        // Use custom BST-XXX ID if available, otherwise fallback to Firebase ID
+                        const displayId = order.orderId || order.id || order._id || 'N/A';
                         
                         row.innerHTML = `
-                            <td>${shortId}</td>
+                            <td>${displayId}</td>
                             <td>${formattedDate}</td>
                             <td>${order.serviceName || order.service || 'N/A'}</td>
                             <td>${formatNumber(order.quantity || 0)}</td>
