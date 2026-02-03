@@ -1258,7 +1258,7 @@
                         <span id="balanceAmount">Chargement...</span>
                     </div>
                     
-                    <a href="profil.html" class="profile-btn">
+                    <a href="#" class="profile-btn" data-section="dashboard">
                         <i class="fas fa-user"></i>
                     </a>
                 </div>
@@ -1275,7 +1275,7 @@
                 <li><a href="#" data-section="order"><i class="fas fa-shopping-cart"></i> Nouvelle commande</a></li>
                 <li><a href="#" data-section="services"><i class="fas fa-th-list"></i> Services disponibles</a></li>
                 <li><a href="#" data-section="orders"><i class="fas fa-history"></i> Mes commandes</a></li>
-                <li><a href="depot.html" data-section="recharge"><i class="fas fa-credit-card"></i> Recharger mon compte</a></li>
+                <li><a href="recharge.html"><i class="fas fa-credit-card"></i> Recharger mon compte</a></li>
                 <li><a href="#" data-section="support"><i class="fas fa-headset"></i> Support</a></li>
             </ul>
         </div>
@@ -1288,7 +1288,7 @@
                     <h1>Bienvenue, <span id="welcomeName">Utilisateur</span> !</h1>
                     <p>Gérez vos services de boost et augmentez votre visibilité sur les réseaux sociaux en quelques clics.</p>
                     <div style="margin-top: 20px;">
-                        <a href="depot.html" class="cta-button" style="display: inline-block; width: auto;">
+                        <a href="recharge.html" class="cta-button" style="display: inline-block; width: auto;">
                             <i class="fas fa-wallet"></i> Dépôt Rapide
                         </a>
                     </div>
@@ -1631,7 +1631,8 @@
         const db = firebase.firestore();
 
         // URL de base de l'API
-        const API_BASE_URL = 'https://visibility-booster.replit.app';
+        // Détecter automatiquement l'URL du serveur
+        const API_BASE_URL = window.location.origin;
 
         // Taux de conversion USD vers XAF
         const USD_TO_XAF = 615;
@@ -2106,6 +2107,20 @@
                         return;
                     }
                     
+                    // Sauvegarder la commande dans Firebase
+                    await db.collection('orders').add({
+                        userId: currentUser.uid,
+                        exoOrderId: orderResult.order || orderResult.exoOrderId,
+                        serviceId: service.exoId,
+                        serviceName: service.name,
+                        platform: platform.name,
+                        quantity: quantity,
+                        totalPrice: totalPrice,
+                        link: link,
+                        status: 'processing',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
                     // Mettre à jour le solde de l'utilisateur
                     const newBalance = userData.balance - totalPrice;
                     await db.collection('users').doc(currentUser.uid).update({
@@ -2444,6 +2459,20 @@
                         return;
                     }
                     
+                    // Sauvegarder la commande dans Firebase
+                    await db.collection('orders').add({
+                        userId: currentUser.uid,
+                        exoOrderId: orderResult.order || orderResult.exoOrderId,
+                        serviceId: service.exoId,
+                        serviceName: service.name,
+                        platform: platform.name,
+                        quantity: currentOrder.quantity,
+                        totalPrice: currentOrder.totalPrice,
+                        link: currentOrder.link,
+                        status: 'processing',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
                     // Mettre à jour le solde de l'utilisateur
                     const newBalance = userData.balance - currentOrder.totalPrice;
                     await db.collection('users').doc(currentUser.uid).update({
@@ -2537,23 +2566,36 @@
             });
         }
 
-        // Charger les commandes de l'utilisateur
+        // Charger les commandes de l'utilisateur depuis Firebase
         async function loadUserOrders() {
             const ordersTableBody = document.getElementById('ordersTableBody');
             
             try {
-                const headers = await getAuthHeaders();
-                const response = await fetch(API_BASE_URL + `/api/orders/${currentUser.uid}`, {
-                    headers: headers
-                });
+                // Charger les commandes depuis Firebase
+                const ordersSnapshot = await db.collection('orders')
+                    .where('userId', '==', currentUser.uid)
+                    .orderBy('createdAt', 'desc')
+                    .limit(50)
+                    .get();
                 
-                const data = await response.json();
+                const orders = ordersSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
                 
-                if (data.orders && data.orders.length > 0) {
+                if (orders.length > 0) {
                     ordersTableBody.innerHTML = '';
                     
-                    data.orders.forEach((order, index) => {
-                        const date = new Date(order.createdAt || Date.now());
+                    orders.forEach((order, index) => {
+                        // Gérer les timestamps Firebase
+                        let date;
+                        if (order.createdAt && order.createdAt.toDate) {
+                            date = order.createdAt.toDate();
+                        } else if (order.createdAt) {
+                            date = new Date(order.createdAt);
+                        } else {
+                            date = new Date();
+                        }
                         const formattedDate = date.toLocaleDateString('fr-FR', {
                             day: '2-digit',
                             month: '2-digit',
