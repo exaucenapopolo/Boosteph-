@@ -1632,7 +1632,7 @@
 
         // URL de base de l'API
         // Détecter automatiquement l'URL du serveur
-        const API_BASE_URL = window.location.origin;
+        const API_BASE_URL = 'https://visibility-booster.replit.app';
 
         // Taux de conversion USD vers XAF
         const USD_TO_XAF = 615;
@@ -2107,20 +2107,6 @@
                         return;
                     }
                     
-                    // Sauvegarder la commande dans Firebase
-                    await db.collection('orders').add({
-                        userId: currentUser.uid,
-                        exoOrderId: orderResult.order || orderResult.exoOrderId,
-                        serviceId: service.exoId,
-                        serviceName: service.name,
-                        platform: platform.name,
-                        quantity: quantity,
-                        totalPrice: totalPrice,
-                        link: link,
-                        status: 'processing',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
                     // Mettre à jour le solde de l'utilisateur
                     const newBalance = userData.balance - totalPrice;
                     await db.collection('users').doc(currentUser.uid).update({
@@ -2459,20 +2445,6 @@
                         return;
                     }
                     
-                    // Sauvegarder la commande dans Firebase
-                    await db.collection('orders').add({
-                        userId: currentUser.uid,
-                        exoOrderId: orderResult.order || orderResult.exoOrderId,
-                        serviceId: service.exoId,
-                        serviceName: service.name,
-                        platform: platform.name,
-                        quantity: currentOrder.quantity,
-                        totalPrice: currentOrder.totalPrice,
-                        link: currentOrder.link,
-                        status: 'processing',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
                     // Mettre à jour le solde de l'utilisateur
                     const newBalance = userData.balance - currentOrder.totalPrice;
                     await db.collection('users').doc(currentUser.uid).update({
@@ -2566,32 +2538,31 @@
             });
         }
 
-        // Charger les commandes de l'utilisateur depuis Firebase
+        // Charger les commandes de l'utilisateur depuis le serveur
         async function loadUserOrders() {
             const ordersTableBody = document.getElementById('ordersTableBody');
             
             try {
-                // Charger les commandes depuis Firebase
-                const ordersSnapshot = await db.collection('orders')
-                    .where('userId', '==', currentUser.uid)
-                    .orderBy('createdAt', 'desc')
-                    .limit(50)
-                    .get();
+                // Charger les commandes depuis l'API serveur
+                const headers = await getAuthHeaders();
+                const response = await fetch(API_BASE_URL + `/api/orders/${currentUser.uid}`, {
+                    headers: headers
+                });
                 
-                const orders = ordersSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
+                if (!response.ok) {
+                    throw new Error('Failed to fetch orders');
+                }
+                
+                const data = await response.json();
+                const orders = data.orders || [];
                 
                 if (orders.length > 0) {
                     ordersTableBody.innerHTML = '';
                     
                     orders.forEach((order, index) => {
-                        // Gérer les timestamps Firebase
+                        // Gérer les timestamps
                         let date;
-                        if (order.createdAt && order.createdAt.toDate) {
-                            date = order.createdAt.toDate();
-                        } else if (order.createdAt) {
+                        if (order.createdAt) {
                             date = new Date(order.createdAt);
                         } else {
                             date = new Date();
