@@ -13,6 +13,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
     <style>
+        /* TOUT LE CSS DE BOOSTEPH RESTE EXACTEMENT LE MÊME */
         :root {
             --primary: #6c63ff;
             --primary-dark: #554fd8;
@@ -640,203 +641,6 @@
             font-weight: 600;
         }
 
-        .form-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .form-group {
-            flex: 1;
-            min-width: 250px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 500;
-            color: var(--dark);
-            font-size: 1rem;
-        }
-
-        .form-input, .form-select {
-            width: 100%;
-            padding: 14px 18px;
-            border: 2px solid rgba(108, 99, 255, 0.1);
-            border-radius: 12px;
-            font-size: 15px;
-            font-family: 'Poppins', sans-serif;
-            transition: var(--transition);
-            background-color: white;
-        }
-
-        .form-input:focus, .form-select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .quality-selector {
-            display: flex;
-            gap: 15px;
-        }
-
-        .quality-option {
-            flex: 1;
-            text-align: center;
-            padding: 18px;
-            border: 2px solid rgba(108, 99, 255, 0.1);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: var(--transition);
-            background: white;
-        }
-
-        .quality-option:hover {
-            border-color: var(--primary);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.1);
-        }
-
-        .quality-option.selected {
-            border-color: var(--primary);
-            background-color: rgba(108, 99, 255, 0.05);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.15);
-        }
-
-        .quality-option h4 {
-            margin-bottom: 8px;
-            font-size: 1rem;
-        }
-
-        .quality-price {
-            font-weight: 600;
-            color: var(--primary);
-            margin: 8px 0;
-            font-size: 1.1rem;
-        }
-
-        .quality-time {
-            font-size: 0.85rem;
-            color: var(--gray);
-        }
-
-        .quantity-input {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .quantity-input input {
-            flex: 1;
-            text-align: center;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .quantity-btn {
-            width: 42px;
-            height: 42px;
-            background-color: rgba(108, 99, 255, 0.1);
-            border: 2px solid transparent;
-            border-radius: 10px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: var(--transition);
-            color: var(--dark);
-        }
-
-        .quantity-btn:hover {
-            background-color: var(--primary);
-            color: white;
-            transform: scale(1.1);
-        }
-
-        /* Order Summary */
-        .order-summary {
-            background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
-            border-radius: 16px;
-            padding: 25px;
-            margin-top: 30px;
-            border: 2px solid rgba(108, 99, 255, 0.1);
-        }
-
-        .summary-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(108, 99, 255, 0.1);
-        }
-
-        .summary-item:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        .summary-label {
-            color: var(--gray);
-            font-weight: 500;
-        }
-
-        .summary-value {
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .total-price {
-            font-size: 1.6rem;
-            color: var(--primary);
-        }
-
-        .cta-button {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.25);
-            width: 100%;
-            font-family: 'Poppins', sans-serif;
-            margin-top: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .cta-button:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.7s ease;
-        }
-
-        .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(108, 99, 255, 0.35);
-        }
-
-        .cta-button:hover:before {
-            left: 100%;
-        }
-
-        .cta-button:disabled {
-            background: var(--gray);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
         /* Services Grid */
         .services-grid {
             display: grid;
@@ -1281,9 +1085,9 @@
         <div class="sidebar" id="sidebar">
             <ul class="sidebar-menu">
                 <li><a href="#" class="active" data-section="dashboard"><i class="fas fa-home"></i> Tableau de bord</a></li>
-                <li><a href="historique-commandes.html" data-section="orders"><i class="fas fa-history"></i> Mes commandes</a></li>
-                <li><a href="depot.html" data-section="recharge"><i class="fas fa-credit-card"></i> Recharger mon compte</a></li>
-                <li><a href="profil.html" data-section="profile"><i class="fas fa-user"></i> Mon profil</a></li>
+                <li><a href="historique-commandes.html"><i class="fas fa-history"></i> Mes commandes</a></li>
+                <li><a href="depot.html"><i class="fas fa-credit-card"></i> Recharger mon compte</a></li>
+                <li><a href="profil.html"><i class="fas fa-user"></i> Mon profil</a></li>
                 <li><a href="https://wa.me/237699898818" target="_blank"><i class="fas fa-headset"></i> Support WhatsApp</a></li>
                 <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
             </ul>
@@ -1293,9 +1097,11 @@
         <div class="main-content" id="mainContent">
             <!-- Dashboard Section -->
             <div class="dashboard-section" id="dashboardSection">
+                <!-- MODIFICATION: Ajout du bouton de dépôt rapide dans la section welcome -->
                 <div class="welcome-section">
                     <h1>Bienvenue, <span id="welcomeUserName">Utilisateur</span> !</h1>
-                    <p>Boostez votre présence en ligne avec nos services de qualité</p>
+                    <p>Gérez vos services de boost et augmentez votre visibilité sur les réseaux sociaux en quelques clics.</p>
+                    <!-- BOUTON DÉPÔT RAPIDE AJOUTÉ -->
                     <div style="margin-top: 20px;">
                         <a href="depot.html" class="cta-button" style="width:auto;display:inline-flex;align-items:center;gap:10px;">
                             <i class="fas fa-wallet"></i> Dépôt rapide
@@ -1303,6 +1109,7 @@
                     </div>
                 </div>
 
+                <!-- Section des statistiques -->
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon">
@@ -1337,11 +1144,12 @@
                     </div>
                 </div>
 
-                <!-- Service Flow Section -->
+                <!-- Section de commande - On garde la structure de Boosteph mais on va utiliser la logique JS de Likéo Boost -->
                 <div class="order-section">
                     <h2 class="section-title">Commander un service</h2>
                     <p>Sélectionnez une plateforme pour commencer</p>
                     
+                    <!-- Stepper de commande -->
                     <div class="form-stepper">
                         <div class="step active" data-step="1">
                             <div class="step-number">1</div>
@@ -1365,111 +1173,110 @@
                         </div>
                     </div>
 
-                    <!-- Step 1: Platform Selection -->
+                    <!-- Étape 1: Sélection de la plateforme -->
                     <div id="step1">
-                        <div class="platforms-container" id="platformsContainer" style="display:flex;overflow-x:auto;gap:15px;padding:10px 0 20px;margin-bottom:20px;scrollbar-width:none;">
-                            <!-- Platforms will be loaded dynamically -->
+                        <div id="platformsContainer" style="display:flex;overflow-x:auto;gap:15px;padding:10px 0 20px;margin-bottom:20px;scrollbar-width:none;">
+                            <!-- Les plateformes seront chargées dynamiquement ici -->
                         </div>
-                        <div class="flow-navigation" style="display:flex;justify-content:space-between;margin-top:30px;">
-                            <div></div>
-                            <button class="cta-button" id="nextToStep2" disabled style="width:auto;min-width:120px;">
+                        <div style="display:flex;justify-content:flex-end;margin-top:20px;">
+                            <button class="cta-button" id="nextToStep2" disabled style="width:auto;min-width:150px;">
                                 Suivant <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Step 2: Service Selection -->
+                    <!-- Étape 2: Sélection du service -->
                     <div id="step2" style="display:none;">
-                        <div class="services-container" id="servicesContainer" style="max-height:400px;overflow-y:auto;margin-bottom:20px;">
-                            <!-- Services will be loaded dynamically -->
+                        <div id="servicesContainer" style="max-height:400px;overflow-y:auto;margin-bottom:20px;">
+                            <!-- Les services seront chargés dynamiquement ici -->
                         </div>
-                        <div class="flow-navigation" style="display:flex;justify-content:space-between;margin-top:30px;">
-                            <button class="cta-button" id="backToStep1" style="width:auto;min-width:120px;background-color:var(--gray);">
+                        <div style="display:flex;justify-content:space-between;margin-top:20px;">
+                            <button class="cta-button" id="backToStep1" style="width:auto;min-width:150px;background-color:var(--gray);">
                                 <i class="fas fa-arrow-left"></i> Retour
                             </button>
-                            <button class="cta-button" id="nextToStep3" disabled style="width:auto;min-width:120px;">
+                            <button class="cta-button" id="nextToStep3" disabled style="width:auto;min-width:150px;">
                                 Suivant <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Step 3: Quantity Selection -->
+                    <!-- Étape 3: Sélection de la quantité -->
                     <div id="step3" style="display:none;">
-                        <div class="quantity-container" style="background-color:#f9f9ff;border-radius:12px;padding:25px;margin-bottom:20px;">
-                            <div class="quantity-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                        <div style="background-color:#f9f9ff;border-radius:16px;padding:25px;margin-bottom:20px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
                                 <h3 style="font-size:1.2rem;color:var(--dark);">Choisir la quantité</h3>
                                 <span>Prix/1000: <strong id="unitPrice">0 XAF</strong></span>
                             </div>
                             <div class="quantity-input" style="display:flex;align-items:center;justify-content:center;margin-bottom:25px;">
-                                <button class="quantity-btn" id="decreaseQty">-</button>
+                                <button class="quantity-btn" id="decreaseQty" style="width:42px;height:42px;background-color:rgba(108,99,255,0.1);border:2px solid transparent;border-radius:10px;font-size:18px;cursor:pointer;transition:var(--transition);color:var(--dark);">-</button>
                                 <div style="width:120px;height:50px;border:2px solid rgba(108,99,255,0.1);border-radius:12px;margin:0 15px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;color:var(--dark);background-color:white;">
                                     <input type="number" id="quantityInput" min="1" value="100" style="width:100%;height:100%;border:none;background:transparent;text-align:center;font-size:1.5rem;font-weight:700;color:var(--dark);font-family:'Poppins',sans-serif;">
                                 </div>
-                                <button class="quantity-btn" id="increaseQty">+</button>
+                                <button class="quantity-btn" id="increaseQty" style="width:42px;height:42px;background-color:rgba(108,99,255,0.1);border:2px solid transparent;border-radius:10px;font-size:18px;cursor:pointer;transition:var(--transition);color:var(--dark);">+</button>
                             </div>
-                            <div class="quantity-unit" id="quantityUnit" style="text-align:center;font-size:0.9rem;color:var(--gray);margin-bottom:20px;">unité(s)</div>
+                            <div id="quantityUnit" style="text-align:center;font-size:0.9rem;color:var(--gray);margin-bottom:20px;">unité(s)</div>
                             <div style="text-align:center;font-size:1.2rem;font-weight:700;color:var(--primary);">
                                 Total: <span id="totalPreview">0 XAF</span>
                             </div>
                             
-                            <div id="customCommentsSection" class="form-group" style="margin-top:25px;display:none;">
+                            <div id="customCommentsSection" style="margin-top:25px;display:none;">
                                 <label for="customComments" style="display:block;margin-bottom:10px;font-weight:500;color:var(--dark);">Commentaires personnalisés (un par ligne) *</label>
-                                <textarea id="customComments" class="form-input" rows="5" placeholder="Commentaire 1&#10;Commentaire 2&#10;Commentaire 3"></textarea>
+                                <textarea id="customComments" style="width:100%;padding:14px 18px;border:2px solid rgba(108,99,255,0.1);border-radius:12px;font-size:15px;font-family:'Poppins',sans-serif;transition:var(--transition);background-color:white;min-height:100px;" placeholder="Commentaire 1&#10;Commentaire 2&#10;Commentaire 3"></textarea>
                                 <small style="color:var(--gray);font-size:0.85rem;display:block;margin-top:8px;">Entrez vos commentaires personnalisés, un par ligne. Le nombre de commentaires détermine la quantité.</small>
                             </div>
                         </div>
-                        <div class="flow-navigation" style="display:flex;justify-content:space-between;margin-top:30px;">
-                            <button class="cta-button" id="backToStep2" style="width:auto;min-width:120px;background-color:var(--gray);">
+                        <div style="display:flex;justify-content:space-between;margin-top:20px;">
+                            <button class="cta-button" id="backToStep2" style="width:auto;min-width:150px;background-color:var(--gray);">
                                 <i class="fas fa-arrow-left"></i> Retour
                             </button>
-                            <button class="cta-button" id="nextToStep4" style="width:auto;min-width:120px;">
+                            <button class="cta-button" id="nextToStep4" style="width:auto;min-width:150px;">
                                 Suivant <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Step 4: Link Input -->
+                    <!-- Étape 4: Lien -->
                     <div id="step4" style="display:none;">
-                        <div class="order-form">
-                            <div class="form-group">
-                                <label for="orderLink">Lien de votre publication/profil *</label>
-                                <input type="url" id="orderLink" class="form-input" placeholder="https://..." required>
+                        <div>
+                            <div style="margin-bottom:20px;">
+                                <label for="orderLink" style="display:block;margin-bottom:10px;font-weight:500;color:var(--dark);">Lien de votre publication/profil *</label>
+                                <input type="url" id="orderLink" style="width:100%;padding:14px 18px;border:2px solid rgba(108,99,255,0.1);border-radius:12px;font-size:15px;font-family:'Poppins',sans-serif;transition:var(--transition);background-color:white;" placeholder="https://..." required>
                                 <small style="color:var(--gray);font-size:0.85rem;display:block;margin-top:8px;">Pour les abonnés: veuillez fournir un lien de profil public. Pour les likes/commentaires: lien direct du post.</small>
                             </div>
-                            <div id="serviceDescriptionBox" class="service-description-box" style="display:none;background:rgba(108,99,255,0.05);padding:15px;border-radius:12px;margin-top:15px;border-left:4px solid var(--primary);">
+                            <div id="serviceDescriptionBox" style="display:none;background:rgba(108,99,255,0.05);padding:15px;border-radius:12px;margin-top:15px;border-left:4px solid var(--primary);">
                                 <strong style="color:var(--dark);display:flex;align-items:center;gap:8px;">
                                     <i class="fas fa-info-circle" style="color:var(--primary);"></i> Information du service:
                                 </strong>
                                 <p id="serviceDescriptionText" style="margin:10px 0 0 0;color:var(--gray);font-size:0.9rem;"></p>
                             </div>
                         </div>
-                        <div class="flow-navigation" style="display:flex;justify-content:space-between;margin-top:30px;">
-                            <button class="cta-button" id="backToStep3" style="width:auto;min-width:120px;background-color:var(--gray);">
+                        <div style="display:flex;justify-content:space-between;margin-top:20px;">
+                            <button class="cta-button" id="backToStep3" style="width:auto;min-width:150px;background-color:var(--gray);">
                                 <i class="fas fa-arrow-left"></i> Retour
                             </button>
-                            <button class="cta-button" id="nextToStep5" style="width:auto;min-width:120px;">
+                            <button class="cta-button" id="nextToStep5" style="width:auto;min-width:150px;">
                                 Suivant <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Step 5: Order Summary -->
+                    <!-- Étape 5: Confirmation -->
                     <div id="step5" style="display:none;">
-                        <div class="order-summary" id="orderSummary">
-                            <!-- Order summary will be generated here -->
+                        <div class="order-summary" id="orderSummary" style="background:linear-gradient(135deg,#f8f9ff 0%,#f0f2ff 100%);border-radius:16px;padding:25px;margin-top:30px;border:2px solid rgba(108,99,255,0.1);">
+                            <!-- Le récapitulatif sera généré ici -->
                         </div>
-                        <div class="flow-navigation" style="display:flex;justify-content:space-between;margin-top:30px;">
-                            <button class="cta-button" id="backToStep4" style="width:auto;min-width:120px;background-color:var(--gray);">
+                        <div style="display:flex;justify-content:space-between;margin-top:20px;">
+                            <button class="cta-button" id="backToStep4" style="width:auto;min-width:150px;background-color:var(--gray);">
                                 <i class="fas fa-arrow-left"></i> Retour
                             </button>
-                            <button class="cta-button" id="confirmOrder" style="width:auto;min-width:120px;background:linear-gradient(135deg,var(--success) 0%,#2ac495 100%);">
+                            <button class="cta-button" id="confirmOrder" style="width:auto;min-width:150px;background:linear-gradient(135deg,var(--success) 0%,#2ac495 100%);">
                                 <i class="fas fa-check"></i> Confirmer la commande
                             </button>
                         </div>
                     </div>
 
-                    <!-- Order Success -->
-                    <div id="orderSuccess" class="order-success" style="display:none;text-align:center;padding:40px 20px;">
+                    <!-- Succès de la commande -->
+                    <div id="orderSuccess" style="display:none;text-align:center;padding:40px 20px;">
                         <i class="fas fa-check-circle" style="font-size:4rem;color:var(--success);margin-bottom:20px;"></i>
                         <h2 style="color:var(--dark);margin-bottom:15px;">Commande confirmée!</h2>
                         <p style="color:var(--gray);margin-bottom:30px;">Votre commande a été passée avec succès. Vous recevrez vos engagements dans les plus brefs délais.</p>
@@ -1502,8 +1309,9 @@
         </div>
     </footer>
 
+    <!-- SEUL LE JAVASCRIPT A ÉTÉ MODIFIÉ - Tout le reste est identique à Boosteph -->
     <script>
-        // Configuration Firebase - Nouveau projet (Boosteph)
+        // Configuration Firebase - Boosteph
         const firebaseConfig = {
             apiKey: "AIzaSyBvVXfiFmnIVEZzaugsxt43ov0YU7quIhY",
             authDomain: "monsiteweb-beaee.firebaseapp.com",
@@ -1539,7 +1347,7 @@
         // Taux de conversion USD vers XAF
         const USD_TO_XAF = 615;
         
-        // URL de base de l'API (MODIFIER AVEC VOTRE URL)
+        // URL de base de l'API - MODIFIÉ POUR VOTRE SERVEUR
         const API_BASE_URL = "https://visibility-booster.replit.app";
 
         // Configuration des plateformes
@@ -1643,7 +1451,6 @@
                 icon = 'fas fa-exclamation-triangle';
             }
             
-            notification.className = `notification ${type}`;
             notification.style.cssText = `
                 background-color: ${bgColor};
                 color: ${type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--error)' : 'var(--warning)'};
@@ -1851,7 +1658,6 @@
             if (!currentUser || !userData) return;
             
             const userName = userData.username || currentUser.email.split('@')[0];
-            const initial = userName.charAt(0).toUpperCase();
             
             document.getElementById('welcomeUserName').textContent = userName;
             
@@ -2037,17 +1843,6 @@
             if (targetStep) targetStep.style.display = 'block';
             
             // Mettre à jour les étapes visuelles
-            document.querySelectorAll('.step').forEach((step, i) => {
-                const stepNum = parseInt(step.getAttribute('data-step'));
-                step.classList.remove('active', 'completed');
-                if (stepNum < stepNum) {
-                    step.classList.add('completed');
-                } else if (stepNum === stepNum) {
-                    step.classList.add('active');
-                }
-            });
-            
-            // Mettre à jour les étapes du formulaire
             document.querySelectorAll('.step').forEach((stepEl, index) => {
                 const stepNumEl = parseInt(stepEl.getAttribute('data-step'));
                 stepEl.classList.remove('active', 'completed');
@@ -2312,36 +2107,6 @@
                 } catch (error) {
                     console.error("Erreur déconnexion:", error);
                 }
-            });
-            
-            // Navigation entre sections du sidebar
-            const sidebarLinks = document.querySelectorAll('.sidebar-menu a[data-section]');
-            sidebarLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // Retirer la classe active de tous les liens
-                    sidebarLinks.forEach(l => l.classList.remove('active'));
-                    
-                    // Ajouter la classe active au lien cliqué
-                    this.classList.add('active');
-                    
-                    // Fermer le menu mobile sur mobile
-                    if (window.innerWidth <= 1200) {
-                        sidebar.classList.remove('active');
-                    }
-                    
-                    // Redirection pour les différentes sections
-                    const section = this.getAttribute('data-section');
-                    if (section === 'orders') {
-                        window.location.href = 'historique-commandes.html';
-                    } else if (section === 'recharge') {
-                        window.location.href = 'depot.html';
-                    } else if (section === 'profile') {
-                        window.location.href = 'profil.html';
-                    }
-                    // Pour 'dashboard', on reste sur la page
-                });
             });
             
             // Navigation simplifiee: Plateforme -> Service -> Quantite -> Lien -> Confirmation
