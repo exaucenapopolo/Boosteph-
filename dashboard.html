@@ -1272,9 +1272,7 @@
         <div class="sidebar" id="sidebar">
             <ul class="sidebar-menu">
                 <li><a href="#" class="active" data-section="dashboard"><i class="fas fa-home"></i> Tableau de bord</a></li>
-                <li><a href="#" data-section="order"><i class="fas fa-shopping-cart"></i> Nouvelle commande</a></li>
-                <li><a href="#" data-section="services"><i class="fas fa-th-list"></i> Services disponibles</a></li>
-                <li><a href="#" data-section="orders"><i class="fas fa-history"></i> Mes commandes</a></li>
+                <li><a href="orders.html"><i class="fas fa-history"></i> Mes commandes</a></li>
                 <li><a href="recharge.html"><i class="fas fa-credit-card"></i> Recharger mon compte</a></li>
                 <li><a href="https://wa.me/237699898818" target="_blank"><i class="fas fa-headset"></i> Support WhatsApp</a></li>
             </ul>
@@ -1380,6 +1378,14 @@
                         <div class="summary-item">
                             <span class="summary-label">Prix total:</span>
                             <span class="summary-value total-price" id="quickTotalPrice">0 XAF</span>
+                        </div>
+                        <div class="summary-item" style="border-top: 1px dashed rgba(108, 99, 255, 0.2); padding-top: 10px; margin-top: 10px;">
+                            <span class="summary-label">Votre solde:</span>
+                            <span class="summary-value" id="quickCurrentBalance" style="color: var(--primary);">0 XAF</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Solde après commande:</span>
+                            <span class="summary-value" id="quickBalanceAfter" style="color: var(--success);">0 XAF</span>
                         </div>
                     </div>
                     
@@ -1637,6 +1643,77 @@
         // Variable pour stocker les services chargés depuis l'API
         let exoServices = [];
         let servicesLoaded = false;
+        let exoPlatformsData = []; // Services organisés par plateforme
+        
+        // Taux de conversion USD vers XAF
+        const USD_TO_XAF = 615;
+        
+        // Configuration des icônes de plateformes
+        const platformConfig = {
+            'TikTok': { icon: 'fab fa-tiktok', color: '#000000' },
+            'Instagram': { icon: 'fab fa-instagram', color: '#E1306C' },
+            'Facebook': { icon: 'fab fa-facebook', color: '#1877F2' },
+            'YouTube': { icon: 'fab fa-youtube', color: '#FF0000' },
+            'Twitter': { icon: 'fab fa-twitter', color: '#1DA1F2' },
+            'Telegram': { icon: 'fab fa-telegram', color: '#0088cc' },
+            'WhatsApp': { icon: 'fab fa-whatsapp', color: '#25D366' },
+            'Autres': { icon: 'fas fa-globe', color: '#6c757d' }
+        };
+        
+        // Décoder les entités HTML
+        function decodeHtml(text) {
+            const txt = document.createElement('textarea');
+            txt.innerHTML = text;
+            return txt.value;
+        }
+        
+        // Détecter la plateforme d'un service par sa catégorie
+        function detectPlatform(category) {
+            const cat = category.toLowerCase();
+            if (cat.includes('tiktok') || cat.includes('tik tok')) return 'TikTok';
+            if (cat.includes('instagram')) return 'Instagram';
+            if (cat.includes('facebook')) return 'Facebook';
+            if (cat.includes('youtube')) return 'YouTube';
+            if (cat.includes('twitter')) return 'Twitter';
+            if (cat.includes('telegram')) return 'Telegram';
+            if (cat.includes('whatsapp')) return 'WhatsApp';
+            return 'Autres';
+        }
+        
+        // Organiser les services Exo par plateforme
+        function organizeServicesByPlatform(services) {
+            const platforms = {};
+            
+            services.forEach(service => {
+                const category = decodeHtml(service.category || '');
+                const platform = detectPlatform(category);
+                
+                if (!platforms[platform]) {
+                    platforms[platform] = {
+                        id: platform.toLowerCase(),
+                        name: platform,
+                        icon: platformConfig[platform]?.icon || 'fas fa-globe',
+                        color: platformConfig[platform]?.color || '#6c757d',
+                        services: []
+                    };
+                }
+                
+                // Convertir le prix USD en XAF (le prix est déjà multiplié par 3 côté serveur)
+                const pricePerK = parseFloat(service.rate) * USD_TO_XAF;
+                
+                platforms[platform].services.push({
+                    exoId: service.service,
+                    name: decodeHtml(service.name),
+                    category: category,
+                    pricePerK: pricePerK,
+                    min: parseInt(service.min) || 1,
+                    max: parseInt(service.max) || 1000000
+                });
+            });
+            
+            // Convertir en tableau et trier par nombre de services
+            return Object.values(platforms).sort((a, b) => b.services.length - a.services.length);
+        }
 
         // Fonction pour charger les services depuis l'API Exo Supplier
         async function loadExoServices() {
@@ -1646,6 +1723,11 @@
                 exoServices = await response.json();
                 servicesLoaded = true;
                 console.log("Services Exo chargés:", exoServices.length);
+                
+                // Organiser par plateforme
+                exoPlatformsData = organizeServicesByPlatform(exoServices);
+                console.log("Plateformes organisées:", exoPlatformsData.map(p => `${p.name} (${p.services.length} services)`));
+                
                 return exoServices;
             } catch (error) {
                 console.error("Erreur chargement services Exo:", error);
@@ -2401,18 +2483,29 @@
             loadUserOrders();
         }
 
-        // Charger les plateformes pour la commande rapide
+        // Charger les plateformes pour la commande rapide (utilise les services Exo si disponibles)
         function loadPlatformsForQuickOrder() {
             const quickPlatformSelect = document.getElementById('quickPlatform');
             quickPlatformSelect.innerHTML = '<option value="">Sélectionnez une plateforme</option>';
             
-            Object.keys(servicesData).forEach(platformId => {
-                const platform = servicesData[platformId];
-                const option = document.createElement('option');
-                option.value = platformId;
-                option.textContent = platform.name;
-                quickPlatformSelect.appendChild(option);
-            });
+            // Utiliser les services Exo dynamiques si disponibles
+            if (exoPlatformsData && exoPlatformsData.length > 0) {
+                exoPlatformsData.forEach(platform => {
+                    const option = document.createElement('option');
+                    option.value = platform.id;
+                    option.textContent = `${platform.name} (${platform.services.length} services)`;
+                    quickPlatformSelect.appendChild(option);
+                });
+            } else {
+                // Fallback sur les données statiques
+                Object.keys(servicesData).forEach(platformId => {
+                    const platform = servicesData[platformId];
+                    const option = document.createElement('option');
+                    option.value = platformId;
+                    option.textContent = platform.name;
+                    quickPlatformSelect.appendChild(option);
+                });
+            }
             
             // Événement de changement de plateforme
             quickPlatformSelect.addEventListener('change', function() {
@@ -2421,19 +2514,37 @@
                 const quickQualityDiv = document.getElementById('quickQuality');
                 
                 if (platformId) {
-                    // Charger les services pour cette plateforme
-                    const platform = servicesData[platformId];
-                    quickServiceSelect.innerHTML = '<option value="">Sélectionnez un service</option>';
-                    
-                    platform.services.forEach(service => {
-                        const option = document.createElement('option');
-                        option.value = service.id;
-                        option.textContent = service.name;
-                        quickServiceSelect.appendChild(option);
-                    });
-                    
-                    quickServiceSelect.disabled = false;
-                    quickQualityDiv.innerHTML = '';
+                    // Utiliser les services Exo dynamiques si disponibles
+                    if (exoPlatformsData && exoPlatformsData.length > 0) {
+                        const platform = exoPlatformsData.find(p => p.id === platformId);
+                        if (platform) {
+                            quickServiceSelect.innerHTML = '<option value="">Sélectionnez un service</option>';
+                            
+                            platform.services.forEach(service => {
+                                const option = document.createElement('option');
+                                option.value = service.exoId; // Utiliser l'ID Exo directement
+                                option.textContent = `${service.name} (${Math.round(service.pricePerK).toLocaleString()} XAF/1K)`;
+                                quickServiceSelect.appendChild(option);
+                            });
+                            
+                            quickServiceSelect.disabled = false;
+                            quickQualityDiv.innerHTML = '';
+                        }
+                    } else {
+                        // Fallback sur les données statiques
+                        const platform = servicesData[platformId];
+                        quickServiceSelect.innerHTML = '<option value="">Sélectionnez un service</option>';
+                        
+                        platform.services.forEach(service => {
+                            const option = document.createElement('option');
+                            option.value = service.id;
+                            option.textContent = service.name;
+                            quickServiceSelect.appendChild(option);
+                        });
+                        
+                        quickServiceSelect.disabled = false;
+                        quickQualityDiv.innerHTML = '';
+                    }
                 } else {
                     quickServiceSelect.innerHTML = '<option value="">Sélectionnez d\'abord une plateforme</option>';
                     quickServiceSelect.disabled = true;
@@ -2444,6 +2555,7 @@
                 document.getElementById('quickUnitPrice').textContent = '0 XAF';
                 document.getElementById('quickQuantityDisplay').textContent = '0';
                 document.getElementById('quickTotalPrice').textContent = '0 XAF';
+                updateQuickOrderPrice();
             });
             
             // Événement de changement de service
@@ -2454,44 +2566,72 @@
                 const quickQualityDiv = document.getElementById('quickQuality');
                 
                 if (platformId && serviceId) {
-                    const platform = servicesData[platformId];
-                    const service = platform.services.find(s => s.id === serviceId);
-                    
-                    // Afficher les options de qualité
-                    quickQualityDiv.innerHTML = '';
-                    service.qualities.forEach((quality, index) => {
-                        const qualityOption = document.createElement('div');
-                        qualityOption.className = `quality-option ${index === 0 ? 'selected' : ''}`;
-                        qualityOption.setAttribute('data-quality', quality.id);
+                    // Utiliser les services Exo dynamiques si disponibles
+                    if (exoPlatformsData && exoPlatformsData.length > 0) {
+                        const platform = exoPlatformsData.find(p => p.id === platformId);
+                        const service = platform?.services.find(s => String(s.exoId) === String(serviceId));
                         
-                        qualityOption.innerHTML = `
-                            <h4>${quality.name}</h4>
-                            <div class="quality-price">${quality.price.toLocaleString()} XAF</div>
-                            <div class="quality-time">${quality.perUnit}</div>
-                            <div class="quality-time">${quality.time}</div>
-                        `;
-                        
-                        qualityOption.addEventListener('click', function() {
-                            // Retirer la classe selected de toutes les options
-                            quickQualityDiv.querySelectorAll('.quality-option').forEach(opt => {
-                                opt.classList.remove('selected');
-                            });
+                        if (service) {
+                            // Pour les services Exo, afficher les infos du service (pas d'options de qualité)
+                            quickQualityDiv.innerHTML = '';
+                            const qualityOption = document.createElement('div');
+                            qualityOption.className = 'quality-option selected';
+                            qualityOption.setAttribute('data-quality', 'exo');
+                            qualityOption.setAttribute('data-price-per-k', service.pricePerK);
+                            qualityOption.setAttribute('data-exo-id', service.exoId);
+                            qualityOption.setAttribute('data-min', service.min);
+                            qualityOption.setAttribute('data-max', service.max);
                             
-                            // Ajouter la classe selected à l'option cliquée
-                            this.classList.add('selected');
+                            qualityOption.innerHTML = `
+                                <h4>Service Exo</h4>
+                                <div class="quality-price">${Math.round(service.pricePerK).toLocaleString()} XAF / 1000</div>
+                                <div class="quality-time">Min: ${service.min} - Max: ${service.max}</div>
+                            `;
+                            
+                            quickQualityDiv.appendChild(qualityOption);
+                            
+                            // Mettre à jour la quantité par défaut
+                            document.getElementById('quickQuantity').value = service.min;
                             
                             // Mettre à jour le prix
                             updateQuickOrderPrice();
+                        }
+                    } else {
+                        // Fallback sur les données statiques
+                        const platform = servicesData[platformId];
+                        const service = platform.services.find(s => s.id === serviceId);
+                        
+                        // Afficher les options de qualité
+                        quickQualityDiv.innerHTML = '';
+                        service.qualities.forEach((quality, index) => {
+                            const qualityOption = document.createElement('div');
+                            qualityOption.className = `quality-option ${index === 0 ? 'selected' : ''}`;
+                            qualityOption.setAttribute('data-quality', quality.id);
+                            
+                            qualityOption.innerHTML = `
+                                <h4>${quality.name}</h4>
+                                <div class="quality-price">${quality.price.toLocaleString()} XAF</div>
+                                <div class="quality-time">${quality.perUnit}</div>
+                                <div class="quality-time">${quality.time}</div>
+                            `;
+                            
+                            qualityOption.addEventListener('click', function() {
+                                quickQualityDiv.querySelectorAll('.quality-option').forEach(opt => {
+                                    opt.classList.remove('selected');
+                                });
+                                this.classList.add('selected');
+                                updateQuickOrderPrice();
+                            });
+                            
+                            quickQualityDiv.appendChild(qualityOption);
                         });
                         
-                        quickQualityDiv.appendChild(qualityOption);
-                    });
-                    
-                    // Mettre à jour la quantité par défaut
-                    document.getElementById('quickQuantity').value = service.unit;
-                    
-                    // Mettre à jour le prix
-                    updateQuickOrderPrice();
+                        // Mettre à jour la quantité par défaut
+                        document.getElementById('quickQuantity').value = service.unit;
+                        
+                        // Mettre à jour le prix
+                        updateQuickOrderPrice();
+                    }
                 } else {
                     quickQualityDiv.innerHTML = '';
                 }
@@ -2515,6 +2655,7 @@
             });
             
             document.getElementById('quickQuantity').addEventListener('input', updateQuickOrderPrice);
+            document.getElementById('quickQuantity').addEventListener('blur', validateExoQuantity);
             
             // Bouton de commande rapide
             document.getElementById('quickOrderBtn').addEventListener('click', async function() {
@@ -2528,66 +2669,108 @@
                     return;
                 }
                 
-                const platform = servicesData[platformId];
-                const service = platform.services.find(s => s.id === serviceId);
                 const qualityId = qualityElement.getAttribute('data-quality');
-                const quality = service.qualities.find(q => q.id === qualityId);
                 const quantity = parseInt(document.getElementById('quickQuantity').value) || 100;
                 
-                // Calculer le prix total
+                let platformName = '';
+                let serviceName = '';
+                let qualityName = '';
+                let unitPrice = 0;
                 let totalPrice = 0;
-                if (service.unit === 10) {
-                    // Pour les commentaires (vendu par 10)
-                    totalPrice = (quantity / 10) * quality.price;
+                let exoServiceId = null;
+                
+                // Vérifier si c'est un service Exo
+                if (qualityId === 'exo') {
+                    // Service Exo
+                    const exoPlatform = exoPlatformsData.find(p => p.id === platformId);
+                    const exoService = exoPlatform?.services.find(s => String(s.exoId) === String(serviceId));
+                    
+                    if (exoService) {
+                        // Valider les limites min/max
+                        if (quantity < exoService.min || quantity > exoService.max) {
+                            showError(`La quantité doit être entre ${exoService.min} et ${exoService.max}`);
+                            return;
+                        }
+                        
+                        platformName = exoPlatform.name;
+                        serviceName = exoService.name;
+                        qualityName = 'Exo Service';
+                        unitPrice = exoService.pricePerK;
+                        totalPrice = (quantity / 1000) * exoService.pricePerK;
+                        exoServiceId = exoService.exoId;
+                    } else {
+                        showError('Service non trouvé');
+                        return;
+                    }
                 } else {
-                    // Pour les autres services (vendu par 1000)
-                    totalPrice = (quantity / 1000) * quality.price;
+                    // Service statique
+                    const platform = servicesData[platformId];
+                    const service = platform.services.find(s => s.id === serviceId);
+                    const quality = service.qualities.find(q => q.id === qualityId);
+                    
+                    platformName = platform.name;
+                    serviceName = service.name;
+                    qualityName = quality.name;
+                    unitPrice = quality.price;
+                    
+                    if (service.unit === 10) {
+                        totalPrice = (quantity / 10) * quality.price;
+                    } else {
+                        totalPrice = (quantity / 1000) * quality.price;
+                    }
                 }
                 
                 // Vérifier le solde
                 if (userData.balance < totalPrice) {
-                    showError(`Solde insuffisant. Vous avez ${userData.balance.toLocaleString()} XAF, besoin de ${totalPrice.toLocaleString()} XAF`);
+                    showError(`Solde insuffisant. Vous avez ${userData.balance.toLocaleString()} XAF, besoin de ${Math.round(totalPrice).toLocaleString()} XAF`);
                     return;
                 }
                 
                 try {
                     mainLoader.style.display = 'block';
                     
-                    // Chercher le service Exo correspondant
+                    // Envoyer la commande à Exo Supplier si c'est un service Exo
                     let exoOrderId = null;
-                    const exoService = findExoServiceByName(service.name, quality.name);
                     
-                    if (exoService) {
-                        // Envoyer la commande à Exo Supplier via le serveur Replit
+                    if (exoServiceId) {
+                        // Envoyer directement à Exo Supplier via le serveur Replit
                         try {
-                            const exoResult = await sendOrderToExo(exoService.service, link, quantity);
+                            const exoResult = await sendOrderToExo(exoServiceId, link, quantity);
                             exoOrderId = exoResult.exoOrderId || exoResult.order;
                             console.log("Commande Exo créée:", exoOrderId);
                         } catch (exoError) {
                             console.warn("Erreur Exo Supplier (commande enregistrée localement):", exoError);
-                            // Continue sans Exo si erreur - la commande sera traitée manuellement
                         }
                     } else {
-                        console.log("Service Exo non trouvé, commande enregistrée localement uniquement");
+                        // Chercher le service Exo correspondant pour les services statiques
+                        const exoService = findExoServiceByName(serviceName, qualityName);
+                        if (exoService) {
+                            try {
+                                const exoResult = await sendOrderToExo(exoService.service, link, quantity);
+                                exoOrderId = exoResult.exoOrderId || exoResult.order;
+                                console.log("Commande Exo créée:", exoOrderId);
+                            } catch (exoError) {
+                                console.warn("Erreur Exo Supplier:", exoError);
+                            }
+                        }
                     }
                     
                     // Créer la commande dans Firebase
                     const orderData = {
                         userId: currentUser.uid,
                         platform: platformId,
-                        platformName: platform.name,
+                        platformName: platformName,
                         service: serviceId,
-                        serviceName: service.name,
+                        serviceName: serviceName,
                         quality: qualityId,
-                        qualityName: quality.name,
+                        qualityName: qualityName,
                         quantity: quantity,
-                        unitPrice: quality.price,
-                        totalPrice: totalPrice,
+                        unitPrice: Math.round(unitPrice),
+                        totalPrice: Math.round(totalPrice),
                         link: link,
                         status: exoOrderId ? 'processing' : 'pending',
                         exoOrderId: exoOrderId,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        estimatedTime: quality.time
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     };
                     
                     // Ajouter la commande à Firestore
@@ -2612,7 +2795,7 @@
                     updateUserInterface();
                     
                     // Afficher le message de succès
-                    showSuccess(`Commande passée avec succès! ${quantity} ${service.name} pour ${totalPrice.toLocaleString()} XAF`);
+                    showSuccess(`Commande passée avec succès! ${quantity} ${serviceName} pour ${Math.round(totalPrice).toLocaleString()} XAF`);
                     
                     // Réinitialiser le formulaire
                     quickPlatformSelect.value = '';
@@ -2651,27 +2834,84 @@
             const qualityElement = document.getElementById('quickQuality').querySelector('.quality-option.selected');
             const quantity = parseInt(document.getElementById('quickQuantity').value) || 0;
             
+            // Toujours afficher le solde actuel
+            const currentBalance = userData ? (userData.balance || 0) : 0;
+            document.getElementById('quickCurrentBalance').textContent = `${currentBalance.toLocaleString()} XAF`;
+            
             if (platformId && serviceId && qualityElement) {
-                const platform = servicesData[platformId];
-                const service = platform.services.find(s => s.id === serviceId);
                 const qualityId = qualityElement.getAttribute('data-quality');
-                const quality = service.qualities.find(q => q.id === qualityId);
+                let unitPrice = 0;
+                let totalPrice = 0;
                 
-                // Afficher le prix unitaire
-                document.getElementById('quickUnitPrice').textContent = `${quality.price.toLocaleString()} XAF`;
+                // Vérifier si c'est un service Exo
+                if (qualityId === 'exo') {
+                    // Service Exo - prix par 1000
+                    const pricePerK = parseFloat(qualityElement.getAttribute('data-price-per-k')) || 0;
+                    unitPrice = pricePerK;
+                    totalPrice = (quantity / 1000) * pricePerK;
+                    
+                    document.getElementById('quickUnitPrice').textContent = `${Math.round(pricePerK).toLocaleString()} XAF/1K`;
+                } else {
+                    // Service statique - utiliser les données locales
+                    const platform = servicesData[platformId];
+                    if (platform) {
+                        const service = platform.services.find(s => s.id === serviceId);
+                        if (service) {
+                            const quality = service.qualities.find(q => q.id === qualityId);
+                            if (quality) {
+                                unitPrice = quality.price;
+                                
+                                if (service.unit === 10) {
+                                    totalPrice = (quantity / 10) * quality.price;
+                                } else {
+                                    totalPrice = (quantity / 1000) * quality.price;
+                                }
+                                
+                                document.getElementById('quickUnitPrice').textContent = `${quality.price.toLocaleString()} XAF`;
+                            }
+                        }
+                    }
+                }
                 
                 // Afficher la quantité
                 document.getElementById('quickQuantityDisplay').textContent = quantity;
                 
-                // Calculer et afficher le prix total
-                let totalPrice = 0;
-                if (service.unit === 10) {
-                    totalPrice = (quantity / 10) * quality.price;
+                // Afficher le prix total
+                document.getElementById('quickTotalPrice').textContent = `${Math.round(totalPrice).toLocaleString()} XAF`;
+                
+                // Calculer et afficher le solde après commande
+                const balanceAfter = currentBalance - totalPrice;
+                const balanceAfterEl = document.getElementById('quickBalanceAfter');
+                balanceAfterEl.textContent = `${Math.round(balanceAfter).toLocaleString()} XAF`;
+                
+                // Afficher en rouge si insuffisant
+                if (balanceAfter < 0) {
+                    balanceAfterEl.style.color = 'var(--error)';
                 } else {
-                    totalPrice = (quantity / 1000) * quality.price;
+                    balanceAfterEl.style.color = 'var(--success)';
+                }
+            } else {
+                document.getElementById('quickBalanceAfter').textContent = `${currentBalance.toLocaleString()} XAF`;
+                document.getElementById('quickBalanceAfter').style.color = 'var(--success)';
+            }
+        }
+        
+        // Valider la quantité pour les services Exo
+        function validateExoQuantity() {
+            const qualityElement = document.getElementById('quickQuality').querySelector('.quality-option.selected');
+            if (qualityElement && qualityElement.getAttribute('data-quality') === 'exo') {
+                const min = parseInt(qualityElement.getAttribute('data-min')) || 1;
+                const max = parseInt(qualityElement.getAttribute('data-max')) || 1000000;
+                const quantityInput = document.getElementById('quickQuantity');
+                let quantity = parseInt(quantityInput.value) || min;
+                
+                if (quantity < min) {
+                    quantityInput.value = min;
+                } else if (quantity > max) {
+                    quantityInput.value = max;
                 }
                 
-                document.getElementById('quickTotalPrice').textContent = `${totalPrice.toLocaleString()} XAF`;
+                updateQuickOrderPrice();
             }
         }
 
