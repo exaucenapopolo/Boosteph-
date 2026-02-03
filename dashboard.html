@@ -2003,7 +2003,7 @@
                 
                 if (platformId && serviceId) {
                     const platform = platformsData.find(p => p.id === platformId);
-                    const service = platform.services.find(s => s.exoId === serviceId);
+                    const service = platform.services.find(s => String(s.exoId) === String(serviceId));
                     
                     quickQualityDiv.innerHTML = '';
                     
@@ -2045,7 +2045,7 @@
                 
                 if (platformId && serviceId) {
                     const platform = platformsData.find(p => p.id === platformId);
-                    const service = platform.services.find(s => s.exoId === serviceId);
+                    const service = platform.services.find(s => String(s.exoId) === String(serviceId));
                     
                     if (quantity > service.min) {
                         quantityInput.value = quantity - 100;
@@ -2075,7 +2075,7 @@
                 }
                 
                 const platform = platformsData.find(p => p.id === platformId);
-                const service = platform.services.find(s => s.exoId === serviceId);
+                const service = platform.services.find(s => String(s.exoId) === String(serviceId));
                 const quantity = parseInt(document.getElementById('quickQuantity').value) || 100;
                 
                 // Calculer le prix total
@@ -2153,7 +2153,7 @@
             
             if (platformId && serviceId) {
                 const platform = platformsData.find(p => p.id === platformId);
-                const service = platform.services.find(s => s.exoId === serviceId);
+                const service = platform.services.find(s => String(s.exoId) === String(serviceId));
                 
                 document.getElementById('quickUnitPrice').textContent = `${formatNumber(service.pricePerK)} XAF`;
                 document.getElementById('quickQuantityDisplay').textContent = quantity;
@@ -2242,7 +2242,7 @@
             qualityOptions.innerHTML = '';
             
             const platform = platformsData.find(p => p.id === platformId);
-            const service = platform.services.find(s => s.exoId === serviceId);
+            const service = platform.services.find(s => String(s.exoId) === String(serviceId));
             
             document.getElementById('pricePer1000').textContent = `${formatNumber(service.pricePerK)} XAF pour 1000 unités`;
             
@@ -2291,7 +2291,7 @@
         function updateOrderSummary() {
             if (currentOrder.service && currentOrder.quality) {
                 const platform = platformsData.find(p => p.id === currentOrder.platform);
-                const service = platform.services.find(s => s.exoId === currentOrder.service);
+                const service = platform.services.find(s => String(s.exoId) === String(currentOrder.service));
                 const quantity = parseInt(document.getElementById('orderQuantity').value) || 0;
                 
                 const unitPrice = service.pricePerK / 1000;
@@ -2353,7 +2353,7 @@
         // Mettre à jour l'étape de confirmation
         function updateConfirmationStep() {
             const platform = platformsData.find(p => p.id === currentOrder.platform);
-            const service = platform.services.find(s => s.exoId === currentOrder.service);
+            const service = platform.services.find(s => String(s.exoId) === String(currentOrder.service));
             
             document.getElementById('confirmService').textContent = service.name;
             document.getElementById('confirmPlatform').textContent = platform.name;
@@ -2427,7 +2427,7 @@
                     mainLoader.style.display = 'block';
                     
                     const platform = platformsData.find(p => p.id === currentOrder.platform);
-                    const service = platform.services.find(s => s.exoId === currentOrder.service);
+                    const service = platform.services.find(s => String(s.exoId) === String(currentOrder.service));
                     
                     // Envoyer la commande au serveur
                     const orderResult = await sendOrderToExoSupplier(
