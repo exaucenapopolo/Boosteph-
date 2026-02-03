@@ -308,7 +308,7 @@
 
             <div class="form-group">
                 <label for="customAmount">Ou entrez un montant personnalisé (XAF)</label>
-                <input type="number" id="customAmount" placeholder="Ex: 5000" min="500">
+                <input type="number" id="customAmount" placeholder="Ex: 1000" min="100">
             </div>
 
             <div class="form-group">
@@ -419,8 +419,8 @@
             const amount = selectedAmount || parseInt(document.getElementById('customAmount').value);
             const phoneNumber = document.getElementById('phoneNumber').value.trim();
             
-            if (!amount || amount < 500) {
-                showError('Veuillez entrer un montant minimum de 500 XAF');
+            if (!amount || amount < 100) {
+                showError('Veuillez entrer un montant minimum de 100 XAF');
                 return;
             }
             
