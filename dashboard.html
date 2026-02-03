@@ -13,7 +13,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
     <style>
-        /* TOUT LE CSS DE BOOSTEPH RESTE EXACTEMENT LE MÊME */
         :root {
             --primary: #6c63ff;
             --primary-dark: #554fd8;
@@ -1042,7 +1041,7 @@
                     <div class="mobile-menu" id="mobileMenu">
                         <i class="fas fa-bars"></i>
                     </div>
-                    <a href="#" class="logo">
+                    <a href="index.html" class="logo">
                         <div class="logo-icon">
                             <i class="fas fa-rocket"></i>
                         </div>
@@ -1085,8 +1084,8 @@
         <div class="sidebar" id="sidebar">
             <ul class="sidebar-menu">
                 <li><a href="#" class="active" data-section="dashboard"><i class="fas fa-home"></i> Tableau de bord</a></li>
-                <li><a href="historique-commandes.html"><i class="fas fa-history"></i> Mes commandes</a></li>
-                <li><a href="depot.html"><i class="fas fa-credit-card"></i> Recharger mon compte</a></li>
+                <li><a href="orders.html"><i class="fas fa-history"></i> Mes commandes</a></li>
+                <li><a href="recharge.html"><i class="fas fa-credit-card"></i> Recharger mon compte</a></li>
                 <li><a href="profil.html"><i class="fas fa-user"></i> Mon profil</a></li>
                 <li><a href="https://wa.me/237699898818" target="_blank"><i class="fas fa-headset"></i> Support WhatsApp</a></li>
                 <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
@@ -1103,7 +1102,7 @@
                     <p>Gérez vos services de boost et augmentez votre visibilité sur les réseaux sociaux en quelques clics.</p>
                     <!-- BOUTON DÉPÔT RAPIDE AJOUTÉ -->
                     <div style="margin-top: 20px;">
-                        <a href="depot.html" class="cta-button" style="width:auto;display:inline-flex;align-items:center;gap:10px;">
+                        <a href="recharge.html" class="cta-button" style="width:auto;display:inline-flex;align-items:center;gap:10px;">
                             <i class="fas fa-wallet"></i> Dépôt rapide
                         </a>
                     </div>
@@ -1284,7 +1283,7 @@
                             <button class="cta-button" id="newOrderBtn" style="width:auto;min-width:200px;">
                                 Nouvelle commande
                             </button>
-                            <a href="historique-commandes.html" class="cta-button" style="width:auto;min-width:200px;background-color:var(--gray);">
+                            <a href="orders.html" class="cta-button" style="width:auto;min-width:200px;background-color:var(--gray);">
                                 <i class="fas fa-history"></i> Voir mes commandes
                             </a>
                         </div>
@@ -1309,7 +1308,6 @@
         </div>
     </footer>
 
-    <!-- SEUL LE JAVASCRIPT A ÉTÉ MODIFIÉ - Tout le reste est identique à Boosteph -->
     <script>
         // Configuration Firebase - Boosteph
         const firebaseConfig = {
