@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recharger mon compte - Boosteph</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        :root {
+            --primary: #6c63ff;
+            --primary-dark: #554fd8;
+            --secondary: #ff6584;
+            --dark: #1a1a2e;
+            --dark-light: #2a2a3e;
+            --light: #f8f9fa;
+            --gray: #8a8a9e;
+            --success: #36d399;
+            --warning: #fbbf24;
+            --error: #ff4757;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: var(--shadow);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--gray);
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .balance-card h3 {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .balance-card .amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(108, 99, 255, 0.1);
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+        }
+
+        .amount-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .amount-option {
+            padding: 15px;
+            border: 2px solid rgba(108, 99, 255, 0.1);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .amount-option:hover, .amount-option.selected {
+            border-color: var(--primary);
+            background: rgba(108, 99, 255, 0.05);
+            color: var(--primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--light);
+            color: var(--dark);
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background: rgba(54, 211, 153, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-error {
+            background: rgba(255, 71, 87, 0.1);
+            color: var(--error);
+            border: 1px solid var(--error);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(108, 99, 255, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .payment-method {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid rgba(108, 99, 255, 0.1);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .payment-method:hover, .payment-method.selected {
+            border-color: var(--primary);
+            background: rgba(108, 99, 255, 0.05);
+        }
+
+        .payment-method img {
+            height: 30px;
+            margin-bottom: 5px;
+        }
+
+        .payment-method span {
+            display: block;
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gray);
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="dashboard.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+        </a>
+        
+        <div class="header">
+            <h1><i class="fas fa-wallet"></i> Recharger</h1>
+            <p>Rechargez votre compte Boosteph</p>
+        </div>
+
+        <div class="balance-card">
+            <h3>Solde actuel</h3>
+            <div class="amount" id="currentBalance">0 XAF</div>
+        </div>
+
+        <div class="alert" id="successAlert">
+            <i class="fas fa-check-circle"></i>
+            <span id="successMessage"></span>
+        </div>
+
+        <div class="alert" id="errorAlert">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="errorMessage"></span>
+        </div>
+
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: var(--gray);">Traitement en cours...</p>
+        </div>
+
+        <form id="rechargeForm">
+            <div class="form-group">
+                <label>Montant rapide</label>
+                <div class="amount-options">
+                    <div class="amount-option" data-amount="1000">1 000 XAF</div>
+                    <div class="amount-option" data-amount="2000">2 000 XAF</div>
+                    <div class="amount-option" data-amount="5000">5 000 XAF</div>
+                    <div class="amount-option" data-amount="10000">10 000 XAF</div>
+                    <div class="amount-option" data-amount="20000">20 000 XAF</div>
+                    <div class="amount-option" data-amount="50000">50 000 XAF</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="customAmount">Ou entrez un montant personnalisé (XAF)</label>
+                <input type="number" id="customAmount" placeholder="Ex: 5000" min="500">
+            </div>
+
+            <div class="form-group">
+                <label for="phoneNumber">Numéro de téléphone Mobile Money</label>
+                <input type="tel" id="phoneNumber" placeholder="6XXXXXXXX" required>
+            </div>
+
+            <div class="form-group">
+                <label>Mode de paiement</label>
+                <div class="payment-methods">
+                    <div class="payment-method selected" data-method="momo">
+                        <i class="fas fa-mobile-alt" style="font-size: 24px; color: #FFCC00;"></i>
+                        <span>MTN MoMo</span>
+                    </div>
+                    <div class="payment-method" data-method="om">
+                        <i class="fas fa-mobile-alt" style="font-size: 24px; color: #FF6600;"></i>
+                        <span>Orange Money</span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+                <i class="fas fa-credit-card"></i> Payer maintenant
+            </button>
+        </form>
+
+        <button class="btn btn-secondary" onclick="window.location.href='dashboard.html'">
+            <i class="fas fa-home"></i> Retour au tableau de bord
+        </button>
+    </div>
+
+    <script>
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBvVXfiFmnIVEZzaugsxt43ov0YU7quIhY",
+            authDomain: "monsiteweb-beaee.firebaseapp.com",
+            databaseURL: "https://monsiteweb-beaee-default-rtdb.firebaseio.com",
+            projectId: "monsiteweb-beaee",
+            storageBucket: "monsiteweb-beaee.firebasestorage.app",
+            messagingSenderId: "847850292961",
+            appId: "1:847850292961:web:6527ea0d8d2848aec119a0",
+            measurementId: "G-3JGDX6G06N"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // URL du serveur API Replit (MODIFIER AVEC VOTRE URL DEPLOYEE)
+        const API_BASE_URL = "https://boosteph.replit.app";
+
+        let currentUser = null;
+        let userData = null;
+        let selectedAmount = 0;
+
+        // Vérifier l'authentification
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserData();
+            } else {
+                window.location.href = 'connexion.html';
+            }
+        });
+
+        // Charger les données utilisateur
+        async function loadUserData() {
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                if (userDoc.exists) {
+                    userData = userDoc.data();
+                    document.getElementById('currentBalance').textContent = 
+                        `${(userData.balance || 0).toLocaleString()} XAF`;
+                }
+            } catch (error) {
+                console.error("Erreur:", error);
+            }
+        }
+
+        // Gestion des montants rapides
+        document.querySelectorAll('.amount-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.amount-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedAmount = parseInt(this.dataset.amount);
+                document.getElementById('customAmount').value = selectedAmount;
+            });
+        });
+
+        // Gestion du montant personnalisé
+        document.getElementById('customAmount').addEventListener('input', function() {
+            selectedAmount = parseInt(this.value) || 0;
+            document.querySelectorAll('.amount-option').forEach(o => o.classList.remove('selected'));
+        });
+
+        // Gestion des méthodes de paiement
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', function() {
+                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // Soumission du formulaire
+        document.getElementById('rechargeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const amount = selectedAmount || parseInt(document.getElementById('customAmount').value);
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            
+            if (!amount || amount < 500) {
+                showError('Veuillez entrer un montant minimum de 500 XAF');
+                return;
+            }
+            
+            if (!phoneNumber || phoneNumber.length < 9) {
+                showError('Veuillez entrer un numéro de téléphone valide');
+                return;
+            }
+
+            try {
+                showLoader(true);
+                hideAlerts();
+
+                // Appeler l'API Fapshi via le serveur Replit
+                const response = await fetch(`${API_BASE_URL}/api/payments/initiate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: amount,
+                        phoneNumber: phoneNumber,
+                        userId: currentUser.uid,
+                        externalId: currentUser.uid
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.transId) {
+                    // Enregistrer la transaction en attente dans Firebase
+                    await db.collection('transactions').add({
+                        userId: currentUser.uid,
+                        type: 'recharge',
+                        amount: amount,
+                        phoneNumber: phoneNumber,
+                        transId: data.transId,
+                        status: 'pending',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    showSuccess('Paiement initié! Veuillez confirmer sur votre téléphone. ' + 
+                               'Votre solde sera crédité automatiquement après confirmation.');
+                    
+                    // Rediriger vers le lien de paiement si disponible
+                    if (data.link) {
+                        setTimeout(() => {
+                            window.open(data.link, '_blank');
+                        }, 2000);
+                    }
+                } else {
+                    showError(data.error || 'Erreur lors de l\'initiation du paiement');
+                }
+            } catch (error) {
+                console.error("Erreur:", error);
+                showError('Erreur de connexion au serveur de paiement');
+            } finally {
+                showLoader(false);
+            }
+        });
+
+        function showSuccess(message) {
+            const alert = document.getElementById('successAlert');
+            document.getElementById('successMessage').textContent = message;
+            alert.className = 'alert alert-success';
+            alert.style.display = 'flex';
+        }
+
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            document.getElementById('errorMessage').textContent = message;
+            alert.className = 'alert alert-error';
+            alert.style.display = 'flex';
+        }
+
+        function hideAlerts() {
+            document.getElementById('successAlert').style.display = 'none';
+            document.getElementById('errorAlert').style.display = 'none';
+        }
+
+        function showLoader(show) {
+            document.getElementById('loader').style.display = show ? 'block' : 'none';
+            document.getElementById('submitBtn').disabled = show;
+        }
+    </script>
+</body>
+</html>
