@@ -140,7 +140,7 @@
 
         .amount-options {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 10px;
             margin-bottom: 20px;
         }
@@ -254,12 +254,14 @@
 
         .payment-methods {
             display: flex;
+            flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 20px;
         }
 
         .payment-method {
             flex: 1;
+            min-width: 120px;
             padding: 15px;
             border: 2px solid rgba(108, 99, 255, 0.1);
             border-radius: 10px;
@@ -379,6 +381,46 @@
             color: var(--dark);
             font-weight: 500;
         }
+
+        .currency-display {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .currency-display strong {
+            color: var(--primary);
+        }
+
+        .min-amount-info {
+            background: rgba(255, 187, 36, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: var(--dark);
+            text-align: center;
+        }
+
+        .amount-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .currency-symbol {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(108, 99, 255, 0.1);
+            font-weight: 500;
+            min-width: 60px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -424,89 +466,82 @@
             <h4><i class="fas fa-info-circle"></i> Comment ça marche ?</h4>
             <p>Remplissez ce formulaire pour effectuer un dépôt depuis un autre pays africain :</p>
             <ul>
-                <li>Remplissez vos informations de paiement</li>
+                <li>Sélectionnez votre pays (la monnaie et méthodes de paiement s'adapteront automatiquement)</li>
+                <li>Entrez le montant dans votre monnaie locale</li>
+                <li>Choisissez votre méthode de paiement disponible dans votre pays</li>
                 <li>Cliquez sur "Envoyer sur WhatsApp"</li>
-                <li>Un message pré-rempli s'ouvrira sur WhatsApp</li>
-                <li>Envoyez le message à notre équipe</li>
                 <li>Nous vous enverrons un lien de paiement personnalisé</li>
             </ul>
         </div>
 
         <form id="whatsappPaymentForm">
             <div class="form-group">
-                <label>Montant de recharge (XAF)</label>
-                <div class="amount-options">
-                    <div class="amount-option" data-amount="5000">5 000 XAF</div>
-                    <div class="amount-option" data-amount="10000">10 000 XAF</div>
-                    <div class="amount-option" data-amount="20000">20 000 XAF</div>
-                    <div class="amount-option" data-amount="50000">50 000 XAF</div>
-                    <div class="amount-option" data-amount="100000">100 000 XAF</div>
-                    <div class="amount-option" data-amount="200000">200 000 XAF</div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="customAmount">Ou montant personnalisé (XAF)</label>
-                <input type="number" id="customAmount" placeholder="Ex: 15000" min="5000">
-            </div>
-
-            <div class="form-group">
                 <label for="country">Pays *</label>
                 <select id="country" required>
                     <option value="">Sélectionnez votre pays</option>
                     <!-- Afrique de l'Ouest -->
-                    <option value="benin">Bénin</option>
-                    <option value="burkina-faso">Burkina Faso</option>
-                    <option value="cote-ivoire">Côte d'Ivoire</option>
-                    <option value="gambie">Gambie</option>
-                    <option value="ghana">Ghana</option>
-                    <option value="guinee">Guinée</option>
-                    <option value="guinee-bissau">Guinée-Bissau</option>
-                    <option value="liberia">Libéria</option>
-                    <option value="mali">Mali</option>
-                    <option value="niger">Niger</option>
-                    <option value="nigeria">Nigeria</option>
-                    <option value="senegal">Sénégal</option>
-                    <option value="sierra-leone">Sierra Leone</option>
-                    <option value="togo">Togo</option>
+                    <option value="benin">Bénin (XOF - Franc CFA)</option>
+                    <option value="burkina-faso">Burkina Faso (XOF - Franc CFA)</option>
+                    <option value="cote-ivoire">Côte d'Ivoire (XOF - Franc CFA)</option>
+                    <option value="gambie">Gambie (GMD - Dalasi)</option>
+                    <option value="ghana">Ghana (GHS - Cedi)</option>
+                    <option value="guinee">Guinée (GNF - Franc Guinéen)</option>
+                    <option value="liberia">Libéria (LRD - Dollar Libérien)</option>
+                    <option value="mali">Mali (XOF - Franc CFA)</option>
+                    <option value="niger">Niger (XOF - Franc CFA)</option>
+                    <option value="nigeria">Nigeria (NGN - Naira)</option>
+                    <option value="senegal">Sénégal (XOF - Franc CFA)</option>
+                    <option value="sierra-leone">Sierra Leone (SLL - Leone)</option>
+                    <option value="togo">Togo (XOF - Franc CFA)</option>
                     
                     <!-- Afrique Centrale -->
-                    <option value="gabon">Gabon</option>
-                    <option value="guinee-equatoriale">Guinée Équatoriale</option>
-                    <option value="rdc">République Démocratique du Congo</option>
-                    <option value="republique-centrafricaine">République Centrafricaine</option>
-                    <option value="republique-congo">République du Congo</option>
-                    <option value="tchad">Tchad</option>
+                    <option value="cameroon">Cameroun (XAF - Franc CFA)</option>
+                    <option value="gabon">Gabon (XAF - Franc CFA)</option>
+                    <option value="rdc">République Démocratique du Congo (CDF - Franc Congolais)</option>
+                    <option value="republique-congo">République du Congo (XAF - Franc CFA)</option>
+                    <option value="tchad">Tchad (XAF - Franc CFA)</option>
                     
                     <!-- Afrique de l'Est -->
-                    <option value="burundi">Burundi</option>
-                    <option value="djibouti">Djibouti</option>
-                    <option value="erythree">Érythrée</option>
-                    <option value="ethiopie">Éthiopie</option>
-                    <option value="kenya">Kenya</option>
-                    <option value="rwanda">Rwanda</option>
-                    <option value="somalie">Somalie</option>
-                    <option value="soudan">Soudan</option>
-                    <option value="soudan-sud">Soudan du Sud</option>
-                    <option value="tanzanie">Tanzanie</option>
-                    <option value="uganda">Ouganda</option>
+                    <option value="burundi">Burundi (BIF - Franc Burundais)</option>
+                    <option value="ethiopie">Éthiopie (ETB - Birr)</option>
+                    <option value="kenya">Kenya (KES - Shilling Kenyan)</option>
+                    <option value="rwanda">Rwanda (RWF - Franc Rwandais)</option>
+                    <option value="tanzanie">Tanzanie (TZS - Shilling Tanzanien)</option>
+                    <option value="uganda">Ouganda (UGX - Shilling Ougandais)</option>
                     
                     <!-- Afrique Australe -->
-                    <option value="angola">Angola</option>
-                    <option value="botswana">Botswana</option>
-                    <option value="comores">Comores</option>
-                    <option value="lesotho">Lesotho</option>
-                    <option value="madagascar">Madagascar</option>
-                    <option value="malawi">Malawi</option>
-                    <option value="ile-maurice">Île Maurice</option>
-                    <option value="mozambique">Mozambique</option>
-                    <option value="namibie">Namibie</option>
-                    <option value="seychelles">Seychelles</option>
-                    <option value="afrique-sud">Afrique du Sud</option>
-                    <option value="swaziland">Eswatini (Swaziland)</option>
-                    <option value="zambie">Zambie</option>
-                    <option value="zimbabwe">Zimbabwe</option>
+                    <option value="angola">Angola (AOA - Kwanza)</option>
+                    <option value="botswana">Botswana (BWP - Pula)</option>
+                    <option value="madagascar">Madagascar (MGA - Ariary)</option>
+                    <option value="mozambique">Mozambique (MZN - Metical)</option>
+                    <option value="afrique-sud">Afrique du Sud (ZAR - Rand)</option>
+                    <option value="zambie">Zambie (ZMW - Kwacha)</option>
+                    <option value="zimbabwe">Zimbabwe (USD - Dollar US)</option>
                 </select>
+            </div>
+
+            <div class="form-group">
+                <label for="paymentMethod">Méthode de paiement *</label>
+                <select id="paymentMethod" required>
+                    <option value="">Sélectionnez d'abord votre pays</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="amount">Montant à déposer *</label>
+                <div class="amount-input-group">
+                    <div class="currency-symbol" id="currencySymbol">FCFA</div>
+                    <input type="number" id="amount" required min="1000" placeholder="Ex: 5000">
+                </div>
+                <div class="currency-display" id="currencyInfo">
+                    <span>Devise: <strong id="currencyCode">XOF</strong></span>
+                    <span>|</span>
+                    <span>Équivalent: <strong id="xafEquivalent">0 XAF</strong></span>
+                </div>
+                <div class="min-amount-info" id="minAmountInfo">
+                    Montant minimum: <strong id="minAmountDisplay">1 000</strong> <span id="minCurrency">FCFA</span>
+                    (environ <strong id="minXAF">1 000 XAF</strong>)
+                </div>
             </div>
 
             <div class="form-group">
@@ -514,24 +549,6 @@
                 <div class="phone-group">
                     <div class="phone-prefix" id="phonePrefix">+229</div>
                     <input type="tel" id="phoneNumber" required placeholder="Ex: 01 23 45 67">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Mode de paiement *</label>
-                <div class="payment-methods">
-                    <div class="payment-method selected" data-method="momo">
-                        <i class="fas fa-mobile-alt" style="color: #FFCC00;"></i>
-                        <span>MTN Mobile Money</span>
-                    </div>
-                    <div class="payment-method" data-method="om">
-                        <i class="fas fa-mobile-alt" style="color: #FF6600;"></i>
-                        <span>Orange Money</span>
-                    </div>
-                    <div class="payment-method" data-method="wave">
-                        <i class="fas fa-wave-square" style="color: #00AEF0;"></i>
-                        <span>Wave</span>
-                    </div>
                 </div>
             </div>
 
@@ -553,7 +570,14 @@
             <div class="summary-box">
                 <div class="summary-item">
                     <span class="summary-label">Montant:</span>
-                    <span class="summary-value" id="displayAmount">0 XAF</span>
+                    <span class="summary-value">
+                        <span id="displayAmount">0</span> 
+                        <span id="displayCurrency">FCFA</span>
+                    </span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Équivalent XAF:</span>
+                    <span class="summary-value" id="displayXAF">0 XAF</span>
                 </div>
                 <div class="summary-item">
                     <span class="summary-label">Pays:</span>
@@ -565,7 +589,10 @@
                 </div>
                 <div class="summary-item">
                     <span class="summary-label">Total à payer:</span>
-                    <span class="summary-value" id="displayTotal">0 XAF</span>
+                    <span class="summary-value">
+                        <span id="displayTotal">0</span> 
+                        <span id="displayTotalCurrency">FCFA</span>
+                    </span>
                 </div>
             </div>
 
@@ -596,59 +623,346 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Données des pays avec indicatifs
+        // Données des pays avec toutes les informations nécessaires
         const countriesData = {
-            'benin': { prefix: '+229', name: 'Bénin' },
-            'burkina-faso': { prefix: '+226', name: 'Burkina Faso' },
-            'cote-ivoire': { prefix: '+225', name: 'Côte d\'Ivoire' },
-            'gambie': { prefix: '+220', name: 'Gambie' },
-            'ghana': { prefix: '+233', name: 'Ghana' },
-            'guinee': { prefix: '+224', name: 'Guinée' },
-            'guinee-bissau': { prefix: '+245', name: 'Guinée-Bissau' },
-            'liberia': { prefix: '+231', name: 'Libéria' },
-            'mali': { prefix: '+223', name: 'Mali' },
-            'niger': { prefix: '+227', name: 'Niger' },
-            'nigeria': { prefix: '+234', name: 'Nigeria' },
-            'senegal': { prefix: '+221', name: 'Sénégal' },
-            'sierra-leone': { prefix: '+232', name: 'Sierra Leone' },
-            'togo': { prefix: '+228', name: 'Togo' },
-            'gabon': { prefix: '+241', name: 'Gabon' },
-            'guinee-equatoriale': { prefix: '+240', name: 'Guinée Équatoriale' },
-            'rdc': { prefix: '+243', name: 'République Démocratique du Congo' },
-            'republique-centrafricaine': { prefix: '+236', name: 'République Centrafricaine' },
-            'republique-congo': { prefix: '+242', name: 'République du Congo' },
-            'tchad': { prefix: '+235', name: 'Tchad' },
-            'burundi': { prefix: '+257', name: 'Burundi' },
-            'djibouti': { prefix: '+253', name: 'Djibouti' },
-            'erythree': { prefix: '+291', name: 'Érythrée' },
-            'ethiopie': { prefix: '+251', name: 'Éthiopie' },
-            'kenya': { prefix: '+254', name: 'Kenya' },
-            'rwanda': { prefix: '+250', name: 'Rwanda' },
-            'somalie': { prefix: '+252', name: 'Somalie' },
-            'soudan': { prefix: '+249', name: 'Soudan' },
-            'soudan-sud': { prefix: '+211', name: 'Soudan du Sud' },
-            'tanzanie': { prefix: '+255', name: 'Tanzanie' },
-            'uganda': { prefix: '+256', name: 'Ouganda' },
-            'angola': { prefix: '+244', name: 'Angola' },
-            'botswana': { prefix: '+267', name: 'Botswana' },
-            'comores': { prefix: '+269', name: 'Comores' },
-            'lesotho': { prefix: '+266', name: 'Lesotho' },
-            'madagascar': { prefix: '+261', name: 'Madagascar' },
-            'malawi': { prefix: '+265', name: 'Malawi' },
-            'ile-maurice': { prefix: '+230', name: 'Île Maurice' },
-            'mozambique': { prefix: '+258', name: 'Mozambique' },
-            'namibie': { prefix: '+264', name: 'Namibie' },
-            'seychelles': { prefix: '+248', name: 'Seychelles' },
-            'afrique-sud': { prefix: '+27', name: 'Afrique du Sud' },
-            'swaziland': { prefix: '+268', name: 'Eswatini (Swaziland)' },
-            'zambie': { prefix: '+260', name: 'Zambie' },
-            'zimbabwe': { prefix: '+263', name: 'Zimbabwe' }
+            // Afrique de l'Ouest - Franc CFA (XOF)
+            'benin': {
+                prefix: '+229',
+                name: 'Bénin',
+                currency: 'XOF',
+                currencySymbol: 'FCFA',
+                currencyName: 'Franc CFA',
+                minAmount: 1000,
+                exchangeRate: 1, // 1 XOF = 1 XAF
+                paymentMethods: ['MTN Mobile Money', 'Moov Money', 'Flutterwave']
+            },
+            'burkina-faso': {
+                prefix: '+226',
+                name: 'Burkina Faso',
+                currency: 'XOF',
+                currencySymbol: 'FCFA',
+                currencyName: 'Franc CFA',
+                minAmount: 1000,
+                exchangeRate: 1,
+                paymentMethods: ['Orange Money', 'Moov Money', 'Wave']
+            },
+            'cote-ivoire': {
+                prefix: '+225',
+                name: 'Côte d\'Ivoire',
+                currency: 'XOF',
+                currencySymbol: 'FCFA',
+                currencyName: 'Franc CFA',
+                minAmount: 1000,
+                exchangeRate: 1,
+                paymentMethods: ['Orange Money', 'MTN Mobile Money', 'Moov Money', 'Wave']
+            },
+            'mali': {
+                prefix: '+223',
+                name: 'Mali',
+                currency: 'XOF',
+                currencySymbol: 'FCFA',
+                currencyName: 'Franc CFA',
+                minAmount: 1000,
+                exchangeRate: 1,
+                paymentMethods: ['Orange Money', 'Malitel Money']
+            },
+            'niger': {
+                prefix: '+227',
+                name: 'Niger',
+                currency: 'XOF',
+                currencySymbol: 'FCFA',
+                currencyName: 'Franc CFA',
+                minAmount: 1000,
+                exchangeRate: 1,
+                paymentMethods: ['Orange Money', 'Moov Money']
+            },
+            'senegal': {
+                prefix: '+221',
+                name: 'Sénégal',
+                currency: 'XOF',
+                currencySymbol: 'FCFA',
+                currencyName: 'Franc CFA',
+                minAmount: 1000,
+                exchangeRate: 1,
+                paymentMethods: ['Orange Money', 'Free Money', 'Wave']
+            },
+            'togo': {
+                prefix: '+228',
+                name: 'Togo',
+                currency: 'XOF',
+                currencySymbol: 'FCFA',
+                currencyName: 'Franc CFA',
+                minAmount: 1000,
+                exchangeRate: 1,
+                paymentMethods: ['Moov Money', 'Togocel Money']
+            },
+            
+            // Afrique Centrale - Franc CFA (XAF)
+            'cameroon': {
+                prefix: '+237',
+                name: 'Cameroun',
+                currency: 'XAF',
+                currencySymbol: 'FCFA',
+                currencyName: 'Franc CFA',
+                minAmount: 1000,
+                exchangeRate: 1,
+                paymentMethods: ['MTN Mobile Money', 'Orange Money']
+            },
+            'gabon': {
+                prefix: '+241',
+                name: 'Gabon',
+                currency: 'XAF',
+                currencySymbol: 'FCFA',
+                currencyName: 'Franc CFA',
+                minAmount: 1000,
+                exchangeRate: 1,
+                paymentMethods: ['Airtel Money', 'Moov Money']
+            },
+            'republique-congo': {
+                prefix: '+242',
+                name: 'République du Congo',
+                currency: 'XAF',
+                currencySymbol: 'FCFA',
+                currencyName: 'Franc CFA',
+                minAmount: 1000,
+                exchangeRate: 1,
+                paymentMethods: ['MTN Mobile Money', 'Airtel Money']
+            },
+            'tchad': {
+                prefix: '+235',
+                name: 'Tchad',
+                currency: 'XAF',
+                currencySymbol: 'FCFA',
+                currencyName: 'Franc CFA',
+                minAmount: 1000,
+                exchangeRate: 1,
+                paymentMethods: ['Airtel Money', 'Tigo Money']
+            },
+            
+            // RDC - Franc Congolais (CDF)
+            'rdc': {
+                prefix: '+243',
+                name: 'République Démocratique du Congo',
+                currency: 'CDF',
+                currencySymbol: 'FC',
+                currencyName: 'Franc Congolais',
+                minAmount: 2500, // 1000 XAF ≈ 2500 CDF (taux approximatif: 1 XAF = 2.5 CDF)
+                exchangeRate: 2.5, // 1 XAF = 2.5 CDF
+                paymentMethods: ['Orange Money', 'Vodacom M-Pesa', 'Airtel Money']
+            },
+            
+            // Ghana - Cedi (GHS)
+            'ghana': {
+                prefix: '+233',
+                name: 'Ghana',
+                currency: 'GHS',
+                currencySymbol: '₵',
+                currencyName: 'Cedi',
+                minAmount: 12, // 1000 XAF ≈ 12 GHS (taux approximatif: 1 XAF = 0.012 GHS)
+                exchangeRate: 0.012,
+                paymentMethods: ['MTN Mobile Money', 'Vodafone Cash', 'AirtelTigo Money']
+            },
+            
+            // Nigeria - Naira (NGN)
+            'nigeria': {
+                prefix: '+234',
+                name: 'Nigeria',
+                currency: 'NGN',
+                currencySymbol: '₦',
+                currencyName: 'Naira',
+                minAmount: 1000, // 1000 XAF ≈ 1000 NGN (taux approximatif: 1 XAF = 1 NGN)
+                exchangeRate: 1,
+                paymentMethods: ['Paga', 'Flutterwave', 'Paystack', 'Quickteller']
+            },
+            
+            // Guinée - Franc Guinéen (GNF)
+            'guinee': {
+                prefix: '+224',
+                name: 'Guinée',
+                currency: 'GNF',
+                currencySymbol: 'FG',
+                currencyName: 'Franc Guinéen',
+                minAmount: 12000, // 1000 XAF ≈ 12000 GNF (taux approximatif: 1 XAF = 12 GNF)
+                exchangeRate: 12,
+                paymentMethods: ['Orange Money', 'MTN Mobile Money']
+            },
+            
+            // Kenya - Shilling Kenyan (KES)
+            'kenya': {
+                prefix: '+254',
+                name: 'Kenya',
+                currency: 'KES',
+                currencySymbol: 'KSh',
+                currencyName: 'Shilling Kenyan',
+                minAmount: 240, // 1000 XAF ≈ 240 KES (taux approximatif: 1 XAF = 0.24 KES)
+                exchangeRate: 0.24,
+                paymentMethods: ['M-Pesa', 'Airtel Money', 'Equitel']
+            },
+            
+            // Tanzanie - Shilling Tanzanien (TZS)
+            'tanzanie': {
+                prefix: '+255',
+                name: 'Tanzanie',
+                currency: 'TZS',
+                currencySymbol: 'TSh',
+                currencyName: 'Shilling Tanzanien',
+                minAmount: 3800, // 1000 XAF ≈ 3800 TZS (taux approximatif: 1 XAF = 3.8 TZS)
+                exchangeRate: 3.8,
+                paymentMethods: ['M-Pesa', 'Tigo Pesa', 'Airtel Money']
+            },
+            
+            // Ouganda - Shilling Ougandais (UGX)
+            'uganda': {
+                prefix: '+256',
+                name: 'Ouganda',
+                currency: 'UGX',
+                currencySymbol: 'USh',
+                currencyName: 'Shilling Ougandais',
+                minAmount: 3200, // 1000 XAF ≈ 3200 UGX (taux approximatif: 1 XAF = 3.2 UGX)
+                exchangeRate: 3.2,
+                paymentMethods: ['MTN Mobile Money', 'Airtel Money']
+            },
+            
+            // Rwanda - Franc Rwandais (RWF)
+            'rwanda': {
+                prefix: '+250',
+                name: 'Rwanda',
+                currency: 'RWF',
+                currencySymbol: 'FRw',
+                currencyName: 'Franc Rwandais',
+                minAmount: 1800, // 1000 XAF ≈ 1800 RWF (taux approximatif: 1 XAF = 1.8 RWF)
+                exchangeRate: 1.8,
+                paymentMethods: ['MTN Mobile Money', 'Airtel Money']
+            },
+            
+            // Afrique du Sud - Rand (ZAR)
+            'afrique-sud': {
+                prefix: '+27',
+                name: 'Afrique du Sud',
+                currency: 'ZAR',
+                currencySymbol: 'R',
+                currencyName: 'Rand',
+                minAmount: 25, // 1000 XAF ≈ 25 ZAR (taux approximatif: 1 XAF = 0.025 ZAR)
+                exchangeRate: 0.025,
+                paymentMethods: ['FNB eWallet', 'Standard Bank Mobile Banking', 'Nedbank Money']
+            },
+            
+            // Autres pays avec données approximatives
+            'gambie': {
+                prefix: '+220',
+                name: 'Gambie',
+                currency: 'GMD',
+                currencySymbol: 'D',
+                currencyName: 'Dalasi',
+                minAmount: 60, // Taux approximatif
+                exchangeRate: 0.06,
+                paymentMethods: ['QMoney', 'AfriMoney']
+            },
+            'liberia': {
+                prefix: '+231',
+                name: 'Libéria',
+                currency: 'LRD',
+                currencySymbol: '$',
+                currencyName: 'Dollar Libérien',
+                minAmount: 2, // Taux approximatif
+                exchangeRate: 0.002,
+                paymentMethods: ['Lonestar Cell MTN Mobile Money', 'Orange Money']
+            },
+            'sierra-leone': {
+                prefix: '+232',
+                name: 'Sierra Leone',
+                currency: 'SLL',
+                currencySymbol: 'Le',
+                currencyName: 'Leone',
+                minAmount: 120000, // Taux approximatif
+                exchangeRate: 120,
+                paymentMethods: ['Orange Money', 'Africell Money']
+            },
+            'burundi': {
+                prefix: '+257',
+                name: 'Burundi',
+                currency: 'BIF',
+                currencySymbol: 'FBu',
+                currencyName: 'Franc Burundais',
+                minAmount: 2200, // Taux approximatif
+                exchangeRate: 2.2,
+                paymentMethods: ['Lumicash', 'EcoCash']
+            },
+            'ethiopie': {
+                prefix: '+251',
+                name: 'Éthiopie',
+                currency: 'ETB',
+                currencySymbol: 'Br',
+                currencyName: 'Birr',
+                minAmount: 60, // Taux approximatif
+                exchangeRate: 0.06,
+                paymentMethods: ['M-Birr', 'HelloCash']
+            },
+            'angola': {
+                prefix: '+244',
+                name: 'Angola',
+                currency: 'AOA',
+                currencySymbol: 'Kz',
+                currencyName: 'Kwanza',
+                minAmount: 700, // Taux approximatif
+                exchangeRate: 0.7,
+                paymentMethods: ['Unitel Money']
+            },
+            'botswana': {
+                prefix: '+267',
+                name: 'Botswana',
+                currency: 'BWP',
+                currencySymbol: 'P',
+                currencyName: 'Pula',
+                minAmount: 14, // Taux approximatif
+                exchangeRate: 0.014,
+                paymentMethods: ['Orange Money', 'Mascom MyZaka']
+            },
+            'madagascar': {
+                prefix: '+261',
+                name: 'Madagascar',
+                currency: 'MGA',
+                currencySymbol: 'Ar',
+                currencyName: 'Ariary',
+                minAmount: 7500, // Taux approximatif
+                exchangeRate: 7.5,
+                paymentMethods: ['MVola', 'Airtel Money']
+            },
+            'mozambique': {
+                prefix: '+258',
+                name: 'Mozambique',
+                currency: 'MZN',
+                currencySymbol: 'MT',
+                currencyName: 'Metical',
+                minAmount: 70, // Taux approximatif
+                exchangeRate: 0.07,
+                paymentMethods: ['M-Pesa', 'E-mola']
+            },
+            'zambie': {
+                prefix: '+260',
+                name: 'Zambie',
+                currency: 'ZMW',
+                currencySymbol: 'ZK',
+                currencyName: 'Kwacha',
+                minAmount: 35, // Taux approximatif
+                exchangeRate: 0.035,
+                paymentMethods: ['Airtel Money', 'MTN Mobile Money']
+            },
+            'zimbabwe': {
+                prefix: '+263',
+                name: 'Zimbabwe',
+                currency: 'USD',
+                currencySymbol: '$',
+                currencyName: 'Dollar US',
+                minAmount: 2, // 1000 XAF ≈ 2 USD (taux approximatif: 1 XAF = 0.002 USD)
+                exchangeRate: 0.002,
+                paymentMethods: ['EcoCash', 'OneMoney', 'Bank Transfer']
+            }
         };
 
         // Variables globales
         let currentUser = null;
         let userData = null;
-        let selectedAmount = 0;
         const whatsappNumber = "237640352524"; // Même numéro WhatsApp que dans le fichier depot.html
 
         // Vérifier l'authentification - MÊME LOGIQUE QUE depot.html
@@ -668,7 +982,7 @@
                 if (userDoc.exists) {
                     userData = userDoc.data();
                     document.getElementById('currentBalance').textContent = 
-                        `${(userData.balance || 0).toLocaleString()} XAF`;
+                        `${(userData.balance || 0).toLocaleString('fr-FR')} XAF`;
                     
                     // Pré-remplir l'email avec celui de Firebase Auth
                     document.getElementById('userEmail').value = currentUser.email || userData.email || '';
@@ -698,7 +1012,7 @@
                                 for (const [code, data] of Object.entries(countriesData)) {
                                     if (data.prefix === prefix) {
                                         document.getElementById('country').value = code;
-                                        updatePhonePrefix();
+                                        updateCountryInfo();
                                         break;
                                     }
                                 }
@@ -716,94 +1030,118 @@
             }
         }
 
-        // Gestion des montants rapides
-        document.querySelectorAll('.amount-option').forEach(option => {
-            option.addEventListener('click', function() {
-                document.querySelectorAll('.amount-option').forEach(o => o.classList.remove('selected'));
-                this.classList.add('selected');
-                selectedAmount = parseInt(this.dataset.amount);
-                document.getElementById('customAmount').value = selectedAmount;
-                updateSummary();
-            });
-        });
-
-        // Gestion du montant personnalisé
-        document.getElementById('customAmount').addEventListener('input', function() {
-            selectedAmount = parseInt(this.value) || 0;
-            document.querySelectorAll('.amount-option').forEach(o => o.classList.remove('selected'));
-            updateSummary();
-        });
-
-        // Gestion des méthodes de paiement
-        document.querySelectorAll('.payment-method').forEach(method => {
-            method.addEventListener('click', function() {
-                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
-                this.classList.add('selected');
-                updateSummary();
-            });
-        });
-
-        // Mettre à jour l'indicatif du téléphone
-        function updatePhonePrefix() {
+        // Mettre à jour les informations du pays sélectionné
+        function updateCountryInfo() {
             const country = document.getElementById('country').value;
-            const phonePrefix = document.getElementById('phonePrefix');
             
-            if (country && countriesData[country]) {
-                phonePrefix.textContent = countriesData[country].prefix;
-            } else {
-                phonePrefix.textContent = '+229'; // Valeur par défaut (Bénin)
+            if (!country || !countriesData[country]) {
+                return;
             }
+            
+            const countryData = countriesData[country];
+            
+            // Mettre à jour l'indicatif téléphonique
+            document.getElementById('phonePrefix').textContent = countryData.prefix;
+            
+            // Mettre à jour la monnaie
+            document.getElementById('currencySymbol').textContent = countryData.currencySymbol;
+            document.getElementById('currencyCode').textContent = countryData.currency;
+            
+            // Mettre à jour le montant minimum
+            const minAmountLocal = countryData.minAmount;
+            const minAmountXAF = Math.round(minAmountLocal * countryData.exchangeRate);
+            
+            document.getElementById('amount').min = minAmountLocal;
+            document.getElementById('amount').placeholder = `Ex: ${minAmountLocal.toLocaleString('fr-FR')}`;
+            
+            document.getElementById('minAmountDisplay').textContent = minAmountLocal.toLocaleString('fr-FR');
+            document.getElementById('minCurrency').textContent = countryData.currencySymbol;
+            document.getElementById('minXAF').textContent = `${minAmountXAF.toLocaleString('fr-FR')} XAF`;
+            
+            // Mettre à jour les méthodes de paiement
+            const paymentMethodSelect = document.getElementById('paymentMethod');
+            paymentMethodSelect.innerHTML = '<option value="">Sélectionnez une méthode</option>';
+            
+            countryData.paymentMethods.forEach(method => {
+                const option = document.createElement('option');
+                option.value = method;
+                option.textContent = method;
+                paymentMethodSelect.appendChild(option);
+            });
+            
+            // Ajouter option "Autre" si nécessaire
+            const otherOption = document.createElement('option');
+            otherOption.value = 'autre';
+            otherOption.textContent = 'Autre méthode';
+            paymentMethodSelect.appendChild(otherOption);
+            
+            // Mettre à jour le résumé
             updateSummary();
         }
 
         // Mettre à jour le résumé
         function updateSummary() {
             const country = document.getElementById('country').value;
-            const method = document.querySelector('.payment-method.selected')?.dataset.method;
-            const amount = selectedAmount || parseInt(document.getElementById('customAmount').value) || 0;
-            const phone = document.getElementById('phoneNumber').value;
-            const prefix = document.getElementById('phonePrefix').textContent;
+            const method = document.getElementById('paymentMethod').value;
+            const amount = parseFloat(document.getElementById('amount').value) || 0;
             
-            // Mettre à jour les affichages
             if (country && countriesData[country]) {
-                document.getElementById('displayCountry').textContent = countriesData[country].name;
-            } else {
-                document.getElementById('displayCountry').textContent = '-';
+                const countryData = countriesData[country];
+                
+                // Mettre à jour les affichages
+                document.getElementById('displayCountry').textContent = countryData.name;
+                document.getElementById('displayCurrency').textContent = countryData.currencySymbol;
+                document.getElementById('displayTotalCurrency').textContent = countryData.currencySymbol;
+                
+                // Calculer l'équivalent en XAF
+                const amountXAF = Math.round(amount * countryData.exchangeRate);
+                
+                // Mettre à jour les montants
+                document.getElementById('displayAmount').textContent = amount.toLocaleString('fr-FR');
+                document.getElementById('displayXAF').textContent = `${amountXAF.toLocaleString('fr-FR')} XAF`;
+                document.getElementById('displayTotal').textContent = amount.toLocaleString('fr-FR');
+                
+                // Mettre à jour l'équivalent en temps réel
+                document.getElementById('xafEquivalent').textContent = `${amountXAF.toLocaleString('fr-FR')} XAF`;
+                
+                if (method) {
+                    document.getElementById('displayMethod').textContent = method;
+                } else {
+                    document.getElementById('displayMethod').textContent = '-';
+                }
+                
+                // Valider le formulaire
+                validateForm();
             }
-            
-            if (method) {
-                const methodNames = {
-                    'momo': 'MTN Mobile Money',
-                    'om': 'Orange Money',
-                    'wave': 'Wave'
-                };
-                document.getElementById('displayMethod').textContent = methodNames[method] || method;
-            } else {
-                document.getElementById('displayMethod').textContent = '-';
-            }
-            
-            document.getElementById('displayAmount').textContent = amount.toLocaleString('fr-FR') + ' XAF';
-            document.getElementById('displayTotal').textContent = amount.toLocaleString('fr-FR') + ' XAF';
-            
-            // Valider le formulaire
-            validateForm();
         }
 
         // Valider le formulaire
         function validateForm() {
             const country = document.getElementById('country').value;
-            const amount = selectedAmount || parseInt(document.getElementById('customAmount').value);
+            const method = document.getElementById('paymentMethod').value;
+            const amount = parseFloat(document.getElementById('amount').value) || 0;
             const phone = document.getElementById('phoneNumber').value;
             const email = document.getElementById('userEmail').value;
             const fullName = document.getElementById('fullName').value;
             const submitBtn = document.getElementById('submitBtn');
+            
+            if (!country || !countriesData[country]) {
+                submitBtn.disabled = true;
+                return;
+            }
+            
+            const countryData = countriesData[country];
+            const minAmountLocal = countryData.minAmount;
+            const amountXAF = amount * countryData.exchangeRate;
             
             // Validation de l'email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             
             // Activer/désactiver le bouton
             const isValid = country && 
-                          amount && amount >= 5000 && 
+                          method && 
+                          amount >= minAmountLocal && 
+                          amountXAF >= 1000 && // Au moins 1000 XAF
                           phone && phone.length >= 8 && 
                           email && emailRegex.test(email) && 
                           fullName;
@@ -841,19 +1179,31 @@
             e.preventDefault();
             
             const country = document.getElementById('country').value;
-            const method = document.querySelector('.payment-method.selected').dataset.method;
-            const amount = selectedAmount || parseInt(document.getElementById('customAmount').value);
+            const method = document.getElementById('paymentMethod').value;
+            const amount = parseFloat(document.getElementById('amount').value) || 0;
             const phonePrefix = document.getElementById('phonePrefix').textContent;
             const phoneNumber = document.getElementById('phoneNumber').value.trim();
             const email = document.getElementById('userEmail').value.trim();
             const fullName = document.getElementById('fullName').value.trim();
             const additionalInfo = document.getElementById('additionalInfo').value.trim();
             
-            const fullPhone = `${phonePrefix} ${phoneNumber}`;
+            if (!country || !countriesData[country]) {
+                showError('Veuillez sélectionner un pays valide');
+                return;
+            }
             
-            // Validation - MÊME LOGIQUE QUE depot.html
-            if (!amount || amount < 5000) {
-                showError('Veuillez entrer un montant minimum de 5000 XAF');
+            const countryData = countriesData[country];
+            const fullPhone = `${phonePrefix} ${phoneNumber}`;
+            const amountXAF = Math.round(amount * countryData.exchangeRate);
+            
+            // Validation
+            if (amount < countryData.minAmount) {
+                showError(`Le montant minimum est de ${countryData.minAmount.toLocaleString('fr-FR')} ${countryData.currencySymbol}`);
+                return;
+            }
+            
+            if (amountXAF < 1000) {
+                showError(`Le montant doit être d'au moins 1000 XAF (environ ${Math.ceil(1000 / countryData.exchangeRate).toLocaleString('fr-FR')} ${countryData.currencySymbol})`);
                 return;
             }
             
@@ -877,19 +1227,14 @@
                 hideAlerts();
 
                 // Créer le message WhatsApp
-                const paymentMethodNames = {
-                    'momo': 'MTN Mobile Money',
-                    'om': 'Orange Money',
-                    'wave': 'Wave'
-                };
-
                 const message = `📱 *DEMANDE DE RECHARGE BOOSTEPH* 📱
 
 👤 *Client:* ${fullName}
 📧 *Email:* ${email}
-🌍 *Pays:* ${countriesData[country]?.name || country}
-💰 *Montant:* ${amount.toLocaleString('fr-FR')} XAF
-📱 *Méthode de paiement:* ${paymentMethodNames[method] || method}
+🌍 *Pays:* ${countryData.name}
+💰 *Montant local:* ${amount.toLocaleString('fr-FR')} ${countryData.currencySymbol} (${countryData.currency})
+💰 *Montant XAF:* ${amountXAF.toLocaleString('fr-FR')} XAF
+📱 *Méthode de paiement:* ${method}
 ☎️ *Numéro:* ${fullPhone}
 📝 *Informations supplémentaires:* ${additionalInfo || 'Aucune'}
 🆔 *ID Utilisateur:* ${currentUser.uid}
@@ -898,12 +1243,14 @@
 
 ✅ Le client attend votre confirmation de paiement.`;
 
-                // Enregistrer la demande dans Firebase (même projet que depot.html)
+                // Enregistrer la demande dans Firebase
                 await db.collection('whatsapp_payments').add({
                     userId: currentUser.uid,
                     fullName: fullName,
-                    country: countriesData[country]?.name || country,
-                    amount: amount,
+                    country: countryData.name,
+                    amountLocal: amount,
+                    currency: countryData.currency,
+                    amountXAF: amountXAF,
                     phoneNumber: fullPhone,
                     email: email,
                     paymentMethod: method,
@@ -933,15 +1280,16 @@
 
         // Initialiser les événements
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('country').addEventListener('change', updatePhonePrefix);
+            document.getElementById('country').addEventListener('change', updateCountryInfo);
+            document.getElementById('paymentMethod').addEventListener('change', updateSummary);
+            document.getElementById('amount').addEventListener('input', updateSummary);
             document.getElementById('phoneNumber').addEventListener('input', updateSummary);
             document.getElementById('userEmail').addEventListener('input', updateSummary);
             document.getElementById('fullName').addEventListener('input', updateSummary);
             document.getElementById('additionalInfo').addEventListener('input', updateSummary);
-            document.getElementById('customAmount').addEventListener('input', updateSummary);
             
-            updatePhonePrefix();
-            updateSummary();
+            // Initialiser avec un pays par défaut
+            updateCountryInfo();
         });
     </script>
 </body>
