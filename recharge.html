@@ -170,6 +170,21 @@
             background: #e9ecef;
         }
 
+        .btn-whatsapp {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            color: white;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-whatsapp:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3);
+        }
+
         .alert {
             padding: 15px;
             border-radius: 10px;
@@ -260,6 +275,16 @@
         .back-link:hover {
             color: var(--primary);
         }
+
+        .whatsapp-info {
+            background: rgba(37, 211, 102, 0.1);
+            border: 1px solid #25D366;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #128C7E;
+        }
     </style>
 </head>
 <body>
@@ -308,7 +333,7 @@
 
             <div class="form-group">
                 <label for="customAmount">Ou entrez un montant personnalisé (XAF)</label>
-                <input type="number" id="customAmount" placeholder="Ex: 1000" min="100">
+                <input type="number" id="customAmount" placeholder="Ex: 5000" min="500">
             </div>
 
             <div class="form-group">
@@ -335,6 +360,14 @@
             </button>
         </form>
 
+        <div class="whatsapp-info">
+            <i class="fab fa-whatsapp"></i> Alternative de paiement via WhatsApp
+        </div>
+
+        <button class="btn btn-whatsapp" onclick="window.location.href='whatsapp_payment.html'">
+            <i class="fab fa-whatsapp"></i> Haute pays africain via WhatsApp
+        </button>
+
         <button class="btn btn-secondary" onclick="window.location.href='dashboard.html'">
             <i class="fas fa-home"></i> Retour au tableau de bord
         </button>
@@ -358,7 +391,7 @@
         const db = firebase.firestore();
 
         // URL du serveur API Replit (MODIFIER AVEC VOTRE URL DEPLOYEE)
-        const API_BASE_URL = "https://visibility-booster.replit.app";
+        const API_BASE_URL = "https://boosteph.replit.app";
 
         let currentUser = null;
         let userData = null;
@@ -419,8 +452,8 @@
             const amount = selectedAmount || parseInt(document.getElementById('customAmount').value);
             const phoneNumber = document.getElementById('phoneNumber').value.trim();
             
-            if (!amount || amount < 100) {
-                showError('Veuillez entrer un montant minimum de 100 XAF');
+            if (!amount || amount < 500) {
+                showError('Veuillez entrer un montant minimum de 500 XAF');
                 return;
             }
             
