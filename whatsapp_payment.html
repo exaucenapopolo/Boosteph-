@@ -138,29 +138,6 @@
             box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
         }
 
-        .amount-options {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .amount-option {
-            padding: 15px;
-            border: 2px solid rgba(108, 99, 255, 0.1);
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 600;
-        }
-
-        .amount-option:hover, .amount-option.selected {
-            border-color: var(--primary);
-            background: rgba(108, 99, 255, 0.05);
-            color: var(--primary);
-        }
-
         .btn {
             width: 100%;
             padding: 15px;
@@ -212,24 +189,20 @@
             border-radius: 10px;
             margin-bottom: 20px;
             display: none;
+            align-items: center;
+            gap: 10px;
         }
 
         .alert-success {
             background: rgba(54, 211, 153, 0.1);
             color: var(--success);
             border: 1px solid var(--success);
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
 
         .alert-error {
             background: rgba(255, 71, 87, 0.1);
             color: var(--error);
             border: 1px solid var(--error);
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
 
         .loader {
@@ -421,6 +394,20 @@
             min-width: 60px;
             text-align: center;
         }
+
+        .conversion-info {
+            background: rgba(108, 99, 255, 0.05);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--dark);
+            text-align: center;
+        }
+
+        .conversion-info strong {
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -531,16 +518,15 @@
                 <label for="amount">Montant à déposer *</label>
                 <div class="amount-input-group">
                     <div class="currency-symbol" id="currencySymbol">FCFA</div>
-                    <input type="number" id="amount" required min="1000" placeholder="Ex: 5000">
+                    <input type="number" id="amount" required min="1" placeholder="Ex: 5000" step="100">
                 </div>
-                <div class="currency-display" id="currencyInfo">
-                    <span>Devise: <strong id="currencyCode">XOF</strong></span>
-                    <span>|</span>
-                    <span>Équivalent: <strong id="xafEquivalent">0 XAF</strong></span>
+                <div class="conversion-info" id="conversionInfo">
+                    Conversion: <strong id="localAmount">0</strong> <span id="localCurrency">FCFA</span> = 
+                    <strong id="xafAmount">0 XAF</strong>
                 </div>
                 <div class="min-amount-info" id="minAmountInfo">
                     Montant minimum: <strong id="minAmountDisplay">1 000</strong> <span id="minCurrency">FCFA</span>
-                    (environ <strong id="minXAF">1 000 XAF</strong>)
+                    (équivalent à <strong id="minXAF">1 000 XAF</strong>)
                 </div>
             </div>
 
@@ -569,10 +555,10 @@
 
             <div class="summary-box">
                 <div class="summary-item">
-                    <span class="summary-label">Montant:</span>
+                    <span class="summary-label">Montant local:</span>
                     <span class="summary-value">
-                        <span id="displayAmount">0</span> 
-                        <span id="displayCurrency">FCFA</span>
+                        <span id="displayLocalAmount">0</span> 
+                        <span id="displayLocalCurrency">FCFA</span>
                     </span>
                 </div>
                 <div class="summary-item">
@@ -589,10 +575,7 @@
                 </div>
                 <div class="summary-item">
                     <span class="summary-label">Total à payer:</span>
-                    <span class="summary-value">
-                        <span id="displayTotal">0</span> 
-                        <span id="displayTotalCurrency">FCFA</span>
-                    </span>
+                    <span class="summary-value" id="displayTotal">0 XAF</span>
                 </div>
             </div>
 
@@ -623,6 +606,34 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // TAUX DE CHANGE RÉELS (approximatifs basés sur les taux actuels)
+        // Source: taux approximatifs au 2024
+        const exchangeRates = {
+            // 1 XAF = ? unité locale
+            'XOF': 1,        // Franc CFA Ouest Africain (parité avec XAF)
+            'XAF': 1,        // Franc CFA Centrafricain
+            'CDF': 2.5,      // Franc Congolais: 1 XAF ≈ 2.5 CDF
+            'GHS': 0.012,    // Cedi Ghanéen: 1 XAF ≈ 0.012 GHS
+            'NGN': 1.0,      // Naira Nigérian: 1 XAF ≈ 1 NGN
+            'GNF': 12,       // Franc Guinéen: 1 XAF ≈ 12 GNF
+            'KES': 0.24,     // Shilling Kenyan: 1 XAF ≈ 0.24 KES
+            'TZS': 3.8,      // Shilling Tanzanien: 1 XAF ≈ 3.8 TZS
+            'UGX': 3.2,      // Shilling Ougandais: 1 XAF ≈ 3.2 UGX
+            'RWF': 1.8,      // Franc Rwandais: 1 XAF ≈ 1.8 RWF
+            'ZAR': 0.025,    // Rand Sud-Africain: 1 XAF ≈ 0.025 ZAR
+            'GMD': 0.06,     // Dalasi Gambien: 1 XAF ≈ 0.06 GMD
+            'LRD': 0.002,    // Dollar Libérien: 1 XAF ≈ 0.002 LRD
+            'SLL': 120,      // Leone Sierra-Léonais: 1 XAF ≈ 120 SLL
+            'BIF': 2.2,      // Franc Burundais: 1 XAF ≈ 2.2 BIF
+            'ETB': 0.06,     // Birr Éthiopien: 1 XAF ≈ 0.06 ETB
+            'AOA': 0.7,      // Kwanza Angolais: 1 XAF ≈ 0.7 AOA
+            'BWP': 0.014,    // Pula Botswanais: 1 XAF ≈ 0.014 BWP
+            'MGA': 7.5,      // Ariary Malgache: 1 XAF ≈ 7.5 MGA
+            'MZN': 0.07,     // Metical Mozambicain: 1 XAF ≈ 0.07 MZN
+            'ZMW': 0.035,    // Kwacha Zambien: 1 XAF ≈ 0.035 ZMW
+            'USD': 0.0016    // Dollar US: 1 XAF ≈ 0.0016 USD
+        };
+
         // Données des pays avec toutes les informations nécessaires
         const countriesData = {
             // Afrique de l'Ouest - Franc CFA (XOF)
@@ -632,9 +643,7 @@
                 currency: 'XOF',
                 currencySymbol: 'FCFA',
                 currencyName: 'Franc CFA',
-                minAmount: 1000,
-                exchangeRate: 1, // 1 XOF = 1 XAF
-                paymentMethods: ['MTN Mobile Money', 'Moov Money', 'Flutterwave']
+                paymentMethods: ['MTN Mobile Money', 'Moov Money', 'Flutterwave', 'Paiement Bancaire']
             },
             'burkina-faso': {
                 prefix: '+226',
@@ -642,8 +651,6 @@
                 currency: 'XOF',
                 currencySymbol: 'FCFA',
                 currencyName: 'Franc CFA',
-                minAmount: 1000,
-                exchangeRate: 1,
                 paymentMethods: ['Orange Money', 'Moov Money', 'Wave']
             },
             'cote-ivoire': {
@@ -652,8 +659,6 @@
                 currency: 'XOF',
                 currencySymbol: 'FCFA',
                 currencyName: 'Franc CFA',
-                minAmount: 1000,
-                exchangeRate: 1,
                 paymentMethods: ['Orange Money', 'MTN Mobile Money', 'Moov Money', 'Wave']
             },
             'mali': {
@@ -662,8 +667,6 @@
                 currency: 'XOF',
                 currencySymbol: 'FCFA',
                 currencyName: 'Franc CFA',
-                minAmount: 1000,
-                exchangeRate: 1,
                 paymentMethods: ['Orange Money', 'Malitel Money']
             },
             'niger': {
@@ -672,8 +675,6 @@
                 currency: 'XOF',
                 currencySymbol: 'FCFA',
                 currencyName: 'Franc CFA',
-                minAmount: 1000,
-                exchangeRate: 1,
                 paymentMethods: ['Orange Money', 'Moov Money']
             },
             'senegal': {
@@ -682,8 +683,6 @@
                 currency: 'XOF',
                 currencySymbol: 'FCFA',
                 currencyName: 'Franc CFA',
-                minAmount: 1000,
-                exchangeRate: 1,
                 paymentMethods: ['Orange Money', 'Free Money', 'Wave']
             },
             'togo': {
@@ -692,8 +691,6 @@
                 currency: 'XOF',
                 currencySymbol: 'FCFA',
                 currencyName: 'Franc CFA',
-                minAmount: 1000,
-                exchangeRate: 1,
                 paymentMethods: ['Moov Money', 'Togocel Money']
             },
             
@@ -704,8 +701,6 @@
                 currency: 'XAF',
                 currencySymbol: 'FCFA',
                 currencyName: 'Franc CFA',
-                minAmount: 1000,
-                exchangeRate: 1,
                 paymentMethods: ['MTN Mobile Money', 'Orange Money']
             },
             'gabon': {
@@ -714,8 +709,6 @@
                 currency: 'XAF',
                 currencySymbol: 'FCFA',
                 currencyName: 'Franc CFA',
-                minAmount: 1000,
-                exchangeRate: 1,
                 paymentMethods: ['Airtel Money', 'Moov Money']
             },
             'republique-congo': {
@@ -724,8 +717,6 @@
                 currency: 'XAF',
                 currencySymbol: 'FCFA',
                 currencyName: 'Franc CFA',
-                minAmount: 1000,
-                exchangeRate: 1,
                 paymentMethods: ['MTN Mobile Money', 'Airtel Money']
             },
             'tchad': {
@@ -734,8 +725,6 @@
                 currency: 'XAF',
                 currencySymbol: 'FCFA',
                 currencyName: 'Franc CFA',
-                minAmount: 1000,
-                exchangeRate: 1,
                 paymentMethods: ['Airtel Money', 'Tigo Money']
             },
             
@@ -746,9 +735,7 @@
                 currency: 'CDF',
                 currencySymbol: 'FC',
                 currencyName: 'Franc Congolais',
-                minAmount: 2500, // 1000 XAF ≈ 2500 CDF (taux approximatif: 1 XAF = 2.5 CDF)
-                exchangeRate: 2.5, // 1 XAF = 2.5 CDF
-                paymentMethods: ['Orange Money', 'Vodacom M-Pesa', 'Airtel Money']
+                paymentMethods: ['Orange Money', 'Vodacom M-Pesa', 'Airtel Money', 'Equity Bank']
             },
             
             // Ghana - Cedi (GHS)
@@ -758,8 +745,6 @@
                 currency: 'GHS',
                 currencySymbol: '₵',
                 currencyName: 'Cedi',
-                minAmount: 12, // 1000 XAF ≈ 12 GHS (taux approximatif: 1 XAF = 0.012 GHS)
-                exchangeRate: 0.012,
                 paymentMethods: ['MTN Mobile Money', 'Vodafone Cash', 'AirtelTigo Money']
             },
             
@@ -770,8 +755,6 @@
                 currency: 'NGN',
                 currencySymbol: '₦',
                 currencyName: 'Naira',
-                minAmount: 1000, // 1000 XAF ≈ 1000 NGN (taux approximatif: 1 XAF = 1 NGN)
-                exchangeRate: 1,
                 paymentMethods: ['Paga', 'Flutterwave', 'Paystack', 'Quickteller']
             },
             
@@ -782,8 +765,6 @@
                 currency: 'GNF',
                 currencySymbol: 'FG',
                 currencyName: 'Franc Guinéen',
-                minAmount: 12000, // 1000 XAF ≈ 12000 GNF (taux approximatif: 1 XAF = 12 GNF)
-                exchangeRate: 12,
                 paymentMethods: ['Orange Money', 'MTN Mobile Money']
             },
             
@@ -794,8 +775,6 @@
                 currency: 'KES',
                 currencySymbol: 'KSh',
                 currencyName: 'Shilling Kenyan',
-                minAmount: 240, // 1000 XAF ≈ 240 KES (taux approximatif: 1 XAF = 0.24 KES)
-                exchangeRate: 0.24,
                 paymentMethods: ['M-Pesa', 'Airtel Money', 'Equitel']
             },
             
@@ -806,8 +785,6 @@
                 currency: 'TZS',
                 currencySymbol: 'TSh',
                 currencyName: 'Shilling Tanzanien',
-                minAmount: 3800, // 1000 XAF ≈ 3800 TZS (taux approximatif: 1 XAF = 3.8 TZS)
-                exchangeRate: 3.8,
                 paymentMethods: ['M-Pesa', 'Tigo Pesa', 'Airtel Money']
             },
             
@@ -818,8 +795,6 @@
                 currency: 'UGX',
                 currencySymbol: 'USh',
                 currencyName: 'Shilling Ougandais',
-                minAmount: 3200, // 1000 XAF ≈ 3200 UGX (taux approximatif: 1 XAF = 3.2 UGX)
-                exchangeRate: 3.2,
                 paymentMethods: ['MTN Mobile Money', 'Airtel Money']
             },
             
@@ -830,8 +805,6 @@
                 currency: 'RWF',
                 currencySymbol: 'FRw',
                 currencyName: 'Franc Rwandais',
-                minAmount: 1800, // 1000 XAF ≈ 1800 RWF (taux approximatif: 1 XAF = 1.8 RWF)
-                exchangeRate: 1.8,
                 paymentMethods: ['MTN Mobile Money', 'Airtel Money']
             },
             
@@ -842,20 +815,16 @@
                 currency: 'ZAR',
                 currencySymbol: 'R',
                 currencyName: 'Rand',
-                minAmount: 25, // 1000 XAF ≈ 25 ZAR (taux approximatif: 1 XAF = 0.025 ZAR)
-                exchangeRate: 0.025,
                 paymentMethods: ['FNB eWallet', 'Standard Bank Mobile Banking', 'Nedbank Money']
             },
             
-            // Autres pays avec données approximatives
+            // Autres pays
             'gambie': {
                 prefix: '+220',
                 name: 'Gambie',
                 currency: 'GMD',
                 currencySymbol: 'D',
                 currencyName: 'Dalasi',
-                minAmount: 60, // Taux approximatif
-                exchangeRate: 0.06,
                 paymentMethods: ['QMoney', 'AfriMoney']
             },
             'liberia': {
@@ -864,8 +833,6 @@
                 currency: 'LRD',
                 currencySymbol: '$',
                 currencyName: 'Dollar Libérien',
-                minAmount: 2, // Taux approximatif
-                exchangeRate: 0.002,
                 paymentMethods: ['Lonestar Cell MTN Mobile Money', 'Orange Money']
             },
             'sierra-leone': {
@@ -874,8 +841,6 @@
                 currency: 'SLL',
                 currencySymbol: 'Le',
                 currencyName: 'Leone',
-                minAmount: 120000, // Taux approximatif
-                exchangeRate: 120,
                 paymentMethods: ['Orange Money', 'Africell Money']
             },
             'burundi': {
@@ -884,8 +849,6 @@
                 currency: 'BIF',
                 currencySymbol: 'FBu',
                 currencyName: 'Franc Burundais',
-                minAmount: 2200, // Taux approximatif
-                exchangeRate: 2.2,
                 paymentMethods: ['Lumicash', 'EcoCash']
             },
             'ethiopie': {
@@ -894,8 +857,6 @@
                 currency: 'ETB',
                 currencySymbol: 'Br',
                 currencyName: 'Birr',
-                minAmount: 60, // Taux approximatif
-                exchangeRate: 0.06,
                 paymentMethods: ['M-Birr', 'HelloCash']
             },
             'angola': {
@@ -904,8 +865,6 @@
                 currency: 'AOA',
                 currencySymbol: 'Kz',
                 currencyName: 'Kwanza',
-                minAmount: 700, // Taux approximatif
-                exchangeRate: 0.7,
                 paymentMethods: ['Unitel Money']
             },
             'botswana': {
@@ -914,8 +873,6 @@
                 currency: 'BWP',
                 currencySymbol: 'P',
                 currencyName: 'Pula',
-                minAmount: 14, // Taux approximatif
-                exchangeRate: 0.014,
                 paymentMethods: ['Orange Money', 'Mascom MyZaka']
             },
             'madagascar': {
@@ -924,8 +881,6 @@
                 currency: 'MGA',
                 currencySymbol: 'Ar',
                 currencyName: 'Ariary',
-                minAmount: 7500, // Taux approximatif
-                exchangeRate: 7.5,
                 paymentMethods: ['MVola', 'Airtel Money']
             },
             'mozambique': {
@@ -934,8 +889,6 @@
                 currency: 'MZN',
                 currencySymbol: 'MT',
                 currencyName: 'Metical',
-                minAmount: 70, // Taux approximatif
-                exchangeRate: 0.07,
                 paymentMethods: ['M-Pesa', 'E-mola']
             },
             'zambie': {
@@ -944,8 +897,6 @@
                 currency: 'ZMW',
                 currencySymbol: 'ZK',
                 currencyName: 'Kwacha',
-                minAmount: 35, // Taux approximatif
-                exchangeRate: 0.035,
                 paymentMethods: ['Airtel Money', 'MTN Mobile Money']
             },
             'zimbabwe': {
@@ -954,8 +905,6 @@
                 currency: 'USD',
                 currencySymbol: '$',
                 currencyName: 'Dollar US',
-                minAmount: 2, // 1000 XAF ≈ 2 USD (taux approximatif: 1 XAF = 0.002 USD)
-                exchangeRate: 0.002,
                 paymentMethods: ['EcoCash', 'OneMoney', 'Bank Transfer']
             }
         };
@@ -963,7 +912,7 @@
         // Variables globales
         let currentUser = null;
         let userData = null;
-        const whatsappNumber = "237640352524"; // Même numéro WhatsApp que dans le fichier depot.html
+        const whatsappNumber = "237640352524"; // Numéro WhatsApp de Boosteph
 
         // Vérifier l'authentification - MÊME LOGIQUE QUE depot.html
         auth.onAuthStateChanged(async (user) => {
@@ -1039,24 +988,16 @@
             }
             
             const countryData = countriesData[country];
+            const currency = countryData.currency;
             
             // Mettre à jour l'indicatif téléphonique
             document.getElementById('phonePrefix').textContent = countryData.prefix;
             
             // Mettre à jour la monnaie
             document.getElementById('currencySymbol').textContent = countryData.currencySymbol;
-            document.getElementById('currencyCode').textContent = countryData.currency;
-            
-            // Mettre à jour le montant minimum
-            const minAmountLocal = countryData.minAmount;
-            const minAmountXAF = Math.round(minAmountLocal * countryData.exchangeRate);
-            
-            document.getElementById('amount').min = minAmountLocal;
-            document.getElementById('amount').placeholder = `Ex: ${minAmountLocal.toLocaleString('fr-FR')}`;
-            
-            document.getElementById('minAmountDisplay').textContent = minAmountLocal.toLocaleString('fr-FR');
+            document.getElementById('localCurrency').textContent = countryData.currencySymbol;
             document.getElementById('minCurrency').textContent = countryData.currencySymbol;
-            document.getElementById('minXAF').textContent = `${minAmountXAF.toLocaleString('fr-FR')} XAF`;
+            document.getElementById('displayLocalCurrency').textContent = countryData.currencySymbol;
             
             // Mettre à jour les méthodes de paiement
             const paymentMethodSelect = document.getElementById('paymentMethod');
@@ -1075,8 +1016,52 @@
             otherOption.textContent = 'Autre méthode';
             paymentMethodSelect.appendChild(otherOption);
             
+            // Calculer et afficher le montant minimum
+            calculateAndDisplayMinAmount(currency);
+            
             // Mettre à jour le résumé
             updateSummary();
+        }
+
+        // Calculer et afficher le montant minimum
+        function calculateAndDisplayMinAmount(currency) {
+            const exchangeRate = exchangeRates[currency] || 1;
+            
+            // Montant minimum en XAF = 1000 XAF
+            const minAmountXAF = 1000;
+            
+            // Calculer le montant minimum en monnaie locale
+            let minAmountLocal;
+            if (exchangeRate > 0) {
+                // Formule: montant local = montant XAF / taux de change
+                minAmountLocal = Math.ceil(minAmountXAF / exchangeRate);
+            } else {
+                minAmountLocal = minAmountXAF;
+            }
+            
+            // Arrondir à la centaine supérieure pour les montants élevés
+            if (minAmountLocal > 100) {
+                minAmountLocal = Math.ceil(minAmountLocal / 100) * 100;
+            }
+            
+            // Mettre à jour l'interface
+            const country = document.getElementById('country').value;
+            const countryData = countriesData[country];
+            
+            if (countryData) {
+                document.getElementById('amount').min = minAmountLocal;
+                document.getElementById('amount').placeholder = `Ex: ${minAmountLocal.toLocaleString('fr-FR')}`;
+                
+                document.getElementById('minAmountDisplay').textContent = minAmountLocal.toLocaleString('fr-FR');
+                document.getElementById('minXAF').textContent = `${minAmountXAF.toLocaleString('fr-FR')} XAF`;
+                
+                // Mettre à jour la conversion info avec le montant par défaut
+                const defaultAmount = minAmountLocal;
+                const xafEquivalent = Math.round(defaultAmount * exchangeRate);
+                
+                document.getElementById('localAmount').textContent = defaultAmount.toLocaleString('fr-FR');
+                document.getElementById('xafAmount').textContent = `${xafEquivalent.toLocaleString('fr-FR')} XAF`;
+            }
         }
 
         // Mettre à jour le résumé
@@ -1087,22 +1072,21 @@
             
             if (country && countriesData[country]) {
                 const countryData = countriesData[country];
+                const currency = countryData.currency;
+                const exchangeRate = exchangeRates[currency] || 1;
+                
+                // Calculer l'équivalent en XAF
+                const amountXAF = Math.round(amount * exchangeRate);
                 
                 // Mettre à jour les affichages
                 document.getElementById('displayCountry').textContent = countryData.name;
-                document.getElementById('displayCurrency').textContent = countryData.currencySymbol;
-                document.getElementById('displayTotalCurrency').textContent = countryData.currencySymbol;
-                
-                // Calculer l'équivalent en XAF
-                const amountXAF = Math.round(amount * countryData.exchangeRate);
-                
-                // Mettre à jour les montants
-                document.getElementById('displayAmount').textContent = amount.toLocaleString('fr-FR');
+                document.getElementById('displayLocalAmount').textContent = amount.toLocaleString('fr-FR');
                 document.getElementById('displayXAF').textContent = `${amountXAF.toLocaleString('fr-FR')} XAF`;
-                document.getElementById('displayTotal').textContent = amount.toLocaleString('fr-FR');
+                document.getElementById('displayTotal').textContent = `${amountXAF.toLocaleString('fr-FR')} XAF`;
                 
-                // Mettre à jour l'équivalent en temps réel
-                document.getElementById('xafEquivalent').textContent = `${amountXAF.toLocaleString('fr-FR')} XAF`;
+                // Mettre à jour l'info de conversion
+                document.getElementById('localAmount').textContent = amount.toLocaleString('fr-FR');
+                document.getElementById('xafAmount').textContent = `${amountXAF.toLocaleString('fr-FR')} XAF`;
                 
                 if (method) {
                     document.getElementById('displayMethod').textContent = method;
@@ -1131,11 +1115,18 @@
             }
             
             const countryData = countriesData[country];
-            const minAmountLocal = countryData.minAmount;
-            const amountXAF = amount * countryData.exchangeRate;
+            const currency = countryData.currency;
+            const exchangeRate = exchangeRates[currency] || 1;
+            
+            // Calculer le montant minimum en monnaie locale
+            const minAmountXAF = 1000;
+            const minAmountLocal = Math.ceil(minAmountXAF / exchangeRate);
             
             // Validation de l'email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            // Calculer l'équivalent en XAF
+            const amountXAF = amount * exchangeRate;
             
             // Activer/désactiver le bouton
             const isValid = country && 
@@ -1175,9 +1166,7 @@
         }
 
         // Gérer la soumission du formulaire WhatsApp
-        document.getElementById('submitBtn').addEventListener('click', async function(e) {
-            e.preventDefault();
-            
+        async function handleWhatsAppSubmit() {
             const country = document.getElementById('country').value;
             const method = document.getElementById('paymentMethod').value;
             const amount = parseFloat(document.getElementById('amount').value) || 0;
@@ -1193,17 +1182,22 @@
             }
             
             const countryData = countriesData[country];
+            const currency = countryData.currency;
+            const exchangeRate = exchangeRates[currency] || 1;
             const fullPhone = `${phonePrefix} ${phoneNumber}`;
-            const amountXAF = Math.round(amount * countryData.exchangeRate);
+            const amountXAF = Math.round(amount * exchangeRate);
             
             // Validation
-            if (amount < countryData.minAmount) {
-                showError(`Le montant minimum est de ${countryData.minAmount.toLocaleString('fr-FR')} ${countryData.currencySymbol}`);
+            const minAmountXAF = 1000;
+            const minAmountLocal = Math.ceil(minAmountXAF / exchangeRate);
+            
+            if (amount < minAmountLocal) {
+                showError(`Le montant minimum est de ${minAmountLocal.toLocaleString('fr-FR')} ${countryData.currencySymbol}`);
                 return;
             }
             
             if (amountXAF < 1000) {
-                showError(`Le montant doit être d'au moins 1000 XAF (environ ${Math.ceil(1000 / countryData.exchangeRate).toLocaleString('fr-FR')} ${countryData.currencySymbol})`);
+                showError(`Le montant doit être d'au moins 1000 XAF (environ ${minAmountLocal.toLocaleString('fr-FR')} ${countryData.currencySymbol})`);
                 return;
             }
             
@@ -1268,25 +1262,37 @@
                 // Ouvrir WhatsApp après un court délai
                 setTimeout(() => {
                     window.open(whatsappUrl, '_blank');
-                }, 2000);
+                    showLoader(false);
+                }, 1500);
 
             } catch (error) {
                 console.error("Erreur:", error);
-                showError('Erreur lors de l\'enregistrement de la demande');
-            } finally {
+                showError('Erreur lors de l\'enregistrement de la demande: ' + error.message);
                 showLoader(false);
             }
-        });
+        }
 
         // Initialiser les événements
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('country').addEventListener('change', updateCountryInfo);
+            // Gérer le changement de pays
+            document.getElementById('country').addEventListener('change', function() {
+                updateCountryInfo();
+            });
+            
+            // Gérer le changement de montant
+            document.getElementById('amount').addEventListener('input', function() {
+                updateSummary();
+            });
+            
+            // Gérer les autres changements
             document.getElementById('paymentMethod').addEventListener('change', updateSummary);
-            document.getElementById('amount').addEventListener('input', updateSummary);
             document.getElementById('phoneNumber').addEventListener('input', updateSummary);
             document.getElementById('userEmail').addEventListener('input', updateSummary);
             document.getElementById('fullName').addEventListener('input', updateSummary);
             document.getElementById('additionalInfo').addEventListener('input', updateSummary);
+            
+            // Gérer la soumission WhatsApp
+            document.getElementById('submitBtn').addEventListener('click', handleWhatsAppSubmit);
             
             // Initialiser avec un pays par défaut
             updateCountryInfo();
