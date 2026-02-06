@@ -911,10 +911,9 @@
 
         // Variables globales
         let currentUser = null;
-        let userData = null;
         const whatsappNumber = "237640352524"; // Numéro WhatsApp de Boosteph
 
-        // Vérifier l'authentification - MÊME LOGIQUE QUE depot.html
+        // Vérifier l'authentification
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
@@ -924,12 +923,12 @@
             }
         });
 
-        // Charger les données utilisateur - MÊME LOGIQUE QUE depot.html
+        // Charger les données utilisateur pour afficher le solde
         async function loadUserData() {
             try {
                 const userDoc = await db.collection('users').doc(currentUser.uid).get();
                 if (userDoc.exists) {
-                    userData = userDoc.data();
+                    const userData = userDoc.data();
                     document.getElementById('currentBalance').textContent = 
                         `${(userData.balance || 0).toLocaleString('fr-FR')} XAF`;
                     
@@ -950,14 +949,12 @@
                     // Pré-remplir le téléphone si disponible
                     if (userData.phoneNumber) {
                         const phone = userData.phoneNumber;
-                        // Extraire l'indicatif et le numéro
                         if (phone.startsWith('+')) {
                             const prefixMatch = phone.match(/^\+(\d{1,4})/);
                             if (prefixMatch) {
                                 const prefix = '+' + prefixMatch[1];
                                 const number = phone.substring(prefixMatch[0].length).trim();
                                 
-                                // Trouver le pays correspondant à l'indicatif
                                 for (const [code, data] of Object.entries(countriesData)) {
                                     if (data.prefix === prefix) {
                                         document.getElementById('country').value = code;
@@ -975,7 +972,6 @@
                 }
             } catch (error) {
                 console.error("Erreur:", error);
-                showError('Erreur de chargement des données utilisateur');
             }
         }
 
@@ -1033,7 +1029,6 @@
             // Calculer le montant minimum en monnaie locale
             let minAmountLocal;
             if (exchangeRate > 0) {
-                // Formule: montant local = montant XAF / taux de change
                 minAmountLocal = Math.ceil(minAmountXAF / exchangeRate);
             } else {
                 minAmountLocal = minAmountXAF;
@@ -1140,7 +1135,7 @@
             submitBtn.disabled = !isValid;
         }
 
-        // MÊMES FONCTIONS D'ALERTE QUE depot.html
+        // Fonctions d'alerte
         function showSuccess(message) {
             const alert = document.getElementById('successAlert');
             document.getElementById('successMessage').textContent = message;
@@ -1220,7 +1215,7 @@
                 showLoader(true);
                 hideAlerts();
 
-                // Créer le message WhatsApp
+                // Créer le message WhatsApp (SANS ENREGISTREMENT DANS LA BASE DE DONNÉES)
                 const message = `📱 *DEMANDE DE RECHARGE BOOSTEPH* 📱
 
 👤 *Client:* ${fullName}
@@ -1237,37 +1232,21 @@
 
 ✅ Le client attend votre confirmation de paiement.`;
 
-                // Enregistrer la demande dans Firebase
-                await db.collection('whatsapp_payments').add({
-                    userId: currentUser.uid,
-                    fullName: fullName,
-                    country: countryData.name,
-                    amountLocal: amount,
-                    currency: countryData.currency,
-                    amountXAF: amountXAF,
-                    phoneNumber: fullPhone,
-                    email: email,
-                    paymentMethod: method,
-                    additionalInfo: additionalInfo,
-                    status: 'pending',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
                 // Encoder le message pour l'URL
                 const encodedMessage = encodeURIComponent(message);
                 const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 
-                showSuccess('Demande enregistrée! WhatsApp va s\'ouvrir. Veuillez envoyer le message au support.');
+                showSuccess('Redirection vers WhatsApp...');
                 
-                // Ouvrir WhatsApp après un court délai
+                // Ouvrir WhatsApp
                 setTimeout(() => {
                     window.open(whatsappUrl, '_blank');
                     showLoader(false);
-                }, 1500);
+                }, 1000);
 
             } catch (error) {
                 console.error("Erreur:", error);
-                showError('Erreur lors de l\'enregistrement de la demande: ' + error.message);
+                showError('Erreur lors de l\'envoi vers WhatsApp');
                 showLoader(false);
             }
         }
